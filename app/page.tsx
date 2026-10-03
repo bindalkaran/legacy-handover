@@ -24,7 +24,12 @@ const HOW = [['7 min', 'Answer privately', 'About 40 questions on your role, tea
 export default function Home() {
   return (
     <div style={{ minHeight: '100vh' }}>
-      <style>{`.hero-l{padding:72px 56px 72px 0;border-right:1px solid var(--ink)}@media(max-width:1150px){.hero-l{border-right:0;padding:56px 0}}`}</style>
+      <style>{`.hero-l{padding:72px 56px 72px 0;border-right:1px solid var(--ink)}@media(max-width:1150px){.hero-l{border-right:0;padding:56px 0}.hero-cap{padding-left:0!important}}
+      .trust{display:flex;flex-wrap:wrap;gap:6px 0}.trust span+span::before{content:'·';margin:0 14px}
+      @media(max-width:520px){.trust{flex-direction:column}.trust span+span::before{content:none}}
+      .hero-cap{padding:20px 0 20px 32px}
+      .pos-cell{padding:28px 32px 28px 0}.pos-next{padding-left:32px;border-left:1px solid var(--rule-l)}
+      @media(max-width:760px){.pos-cell,.pos-next{padding:24px 0;border-left:0}.pos-next{border-top:1px solid var(--rule-l)}}`}</style>
       <SiteHeader />
 
       <section className="wrap grid g-auto-420" style={{ gap: 0, borderBottom: '1px solid var(--ink)', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,520px),1fr))' }}>
@@ -39,12 +44,12 @@ export default function Home() {
               <Link href="/assessment" className="btn btn-green btn-lg">Check my succession readiness <span>→</span></Link>
               <Link href="#sample" className="link-u" style={{ fontSize: 15 }}>See a sample report</Link>
             </div>
-            <div className="row small muted" style={{ gap: 18 }}><span>Free to start</span><span>·</span><span>Private by default</span><span>·</span><span>No obligation to sell</span></div>
+            <div className="trust small muted"><span>Free to start</span><span>Private by default</span><span>No obligation to sell</span></div>
           </div>
         </div>
         <div className="col" style={{ minHeight: 520 }}>
           <Photo src="/images/hero-owner.jpg" priority position="center 30%" caption="An owner on the factory floor, looking at his team" style={{ flex: 1, minHeight: 460 }} />
-          <div className="row between rule-t" style={{ padding: '20px 0 20px 32px', fontSize: 13 }}>
+          <div className="hero-cap row between rule-t" style={{ fontSize: 13 }}>
             <span className="serif" style={{ fontStyle: 'italic', fontSize: 15 }}>&ldquo;Not planning to sell. Planning to stop worrying.&rdquo;</span>
             <span className="muted">Why most owners start</span>
           </div>
@@ -54,7 +59,7 @@ export default function Home() {
       <section style={{ background: 'var(--tint)', borderBottom: '1px solid var(--ink)' }}>
         <div className="wrap grid g-auto-300" style={{ gap: 0 }}>
           {[['Unlike a listing site', 'Marketplaces start by asking your price. We start by asking whether the business can run without you.'], ['Nothing visible by default', 'Listings go public on day one. Here, buyers see nothing until you approve each level yourself.'], ['Selling is one of ten outcomes', 'Family, management, gradual retirement, preparing first. Each assessed honestly, none pushed.']].map(([h, p], i) => (
-            <div key={h} className="col gap8" style={{ padding: '28px 32px 28px ' + (i ? '32px' : '0'), borderLeft: i ? '1px solid var(--rule-l)' : 0 }}><span className="eyebrow">{h}</span><span style={{ fontSize: 15 }}>{p}</span></div>
+            <div key={h} className={'pos-cell col gap8' + (i ? ' pos-next' : '')}><span className="eyebrow">{h}</span><span style={{ fontSize: 15 }}>{p}</span></div>
           ))}
         </div>
       </section>

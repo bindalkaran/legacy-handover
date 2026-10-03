@@ -52,12 +52,12 @@ export default function AssessmentClient({ initialAnswers, initialStep, hasDraft
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <style>{`.as-rail{display:flex}.as-compact{display:none}.as-short{display:none}@media(max-width:760px){.as-rail{display:none}.as-compact{display:flex}}@media(max-width:520px){.as-long{display:none}.as-short{display:inline}}`}</style>
+      <style>{`.as-rail{display:flex}.as-compact{display:none}.as-short{display:none}@media(max-width:760px){.as-rail{display:none}.as-compact{display:flex}}@media(max-width:520px){.as-long{display:none}.as-short{display:inline}}@media(max-width:400px){.as-saved{display:none}}`}</style>
       <header style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--paper)', borderBottom: '1px solid var(--ink)' }}>
         <div className="wrap-m row between" style={{ padding: '14px 24px', flexWrap: 'nowrap' }}>
-          <Link href="/" className="serif" style={{ fontSize: 20 }}>Legacy <em style={{ color: 'var(--green)' }}>Handover</em></Link>
+          <Link href="/" className="serif" style={{ fontSize: 20, whiteSpace: 'nowrap' }}>Legacy <em style={{ color: 'var(--green)' }}>Handover</em></Link>
           <div className="row small muted" style={{ gap: 18, flexWrap: 'nowrap' }}>
-            <span className="row" style={{ gap: 7, whiteSpace: 'nowrap' }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: saved === 'error' ? 'var(--warn)' : '#4E8A6E' }} />{saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved' : saved === 'error' ? 'Not saved, retrying on next answer' : 'Autosave on'}</span>
+            <span className="row" style={{ gap: 7, whiteSpace: 'nowrap', flexWrap: 'nowrap' }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: saved === 'error' ? 'var(--warn)' : '#4E8A6E' }} /><span className="as-saved">{saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved' : saved === 'error' ? 'Not saved, retrying on next answer' : 'Autosave on'}</span></span>
             <Link href={signedIn ? '/dashboard' : '/'} className="btn btn-ghost btn-sm"><span className="as-long">Save &amp; exit</span><span className="as-short">Save</span></Link>
           </div>
         </div>

@@ -135,7 +135,7 @@ img { max-width: 100%; }
 .mobilebar { display: none; }
 @media (max-width: 760px) {
   .side { display: none; }
-  .mobilebar { display: block; flex-basis: 100%; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--ink); background: var(--paper); }
+  .mobilebar { display: block; flex-basis: 100%; min-width: 0; max-width: 100%; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--ink); background: var(--paper); }
   .mobilebar.green { background: var(--green); color: var(--paper); border-bottom-color: var(--green-r); }
   .mobilebar.green a { color: var(--paper); }
   .mobilebar nav { display: flex; overflow-x: auto; padding: 0 8px; }
