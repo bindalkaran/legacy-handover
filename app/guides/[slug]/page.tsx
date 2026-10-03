@@ -32,7 +32,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <h1 className="h1" style={{ fontSize: 'clamp(38px,4.8vw,64px)' }}>{g.title}</h1>
             <p className="t2" style={{ margin: 0, fontSize: 18, lineHeight: 1.6, maxWidth: 560 }}>{g.intro}</p>
           </div>
-          <Photo caption={g.ph} style={{ minHeight: 380 }} />
+          <Photo src={g.img} priority caption={g.ph} style={{ minHeight: 380 }} />
         </section>
         <section className="col rule-t">
           {g.sections.map(([h, p], i) => (

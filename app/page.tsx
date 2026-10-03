@@ -8,9 +8,9 @@ import CallbackForm from '@/components/CallbackForm';
 const LEVELS = [['0', 'Private', 'Only you and advisors you invite', 'Default'], ['1', 'Anonymous', 'General details, no name, no location', 'You approve'], ['2', 'Verified buyer', 'More detail for qualified buyers only', 'You approve'], ['3', 'Under NDA', 'Sensitive information after a signed NDA', 'You approve'], ['4', 'Due diligence', 'Full data room, logged and revocable', 'You approve']];
 
 const STORIES = [
-  { ph: 'Two generations at the factory gate', path: 'Family succession', q: 'A daughter agrees to take over once she sees a dated plan. The scores give the family something to discuss that isn’t emotion.', who: 'Illustrative example · textile processing' },
-  { ph: 'Operations manager on the shop floor', path: 'Management buyout', q: 'Independence starts at 41. Eighteen months of delegation later it reads 68, and the operations head is ready to buy in.', who: 'Illustrative example · auto components' },
-  { ph: 'Owner at a desk with old ledgers', path: 'Prepare first', q: 'An owner ready to sell learns weak records would cost a third of the value, and fixes the records first.', who: 'Illustrative example · agri wholesale' }
+  { img: '/images/story-family.jpg', ph: 'A father and daughter walking through the factory gate', path: 'Family succession', q: 'A daughter agrees to take over once she sees a dated plan. The scores give the family something to discuss that isn’t emotion.', who: 'Illustrative example · textile processing' },
+  { img: '/images/story-mbo.jpg', ph: 'An operations manager on the shop floor with his team', path: 'Management buyout', q: 'Independence starts at 41. Eighteen months of delegation later it reads 68, and the operations head is ready to buy in.', who: 'Illustrative example · auto components' },
+  { img: '/images/story-prepare.jpg', ph: 'An owner at his desk, reading old ledgers', path: 'Prepare first', q: 'An owner ready to sell learns weak records would cost a third of the value, and fixes the records first.', who: 'Illustrative example · agri wholesale' }
 ];
 
 const PLANS = [
@@ -43,7 +43,7 @@ export default function Home() {
           </div>
         </div>
         <div className="col" style={{ minHeight: 520 }}>
-          <Photo caption="Owner on the factory floor, looking at their team" style={{ flex: 1, minHeight: 460 }} />
+          <Photo src="/images/hero-owner.jpg" priority position="center 30%" caption="An owner on the factory floor, looking at his team" style={{ flex: 1, minHeight: 460 }} />
           <div className="row between rule-t" style={{ padding: '20px 0 20px 32px', fontSize: 13 }}>
             <span className="serif" style={{ fontStyle: 'italic', fontSize: 15 }}>&ldquo;Not planning to sell. Planning to stop worrying.&rdquo;</span>
             <span className="muted">Why most owners start</span>
@@ -83,7 +83,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <Photo dark caption="A second-line manager runs the meeting while the owner observes: the handover in progress" style={{ minHeight: 520 }} />
+          <Photo src="/images/how-meeting.jpg" caption="A second-line manager runs the meeting while the owner observes: the handover in progress" style={{ minHeight: 520 }} />
         </div>
       </section>
 
@@ -116,7 +116,7 @@ export default function Home() {
         <div className="wrap grid g-auto-300" style={{ columnGap: 32 }}>
           {STORIES.map((s) => (
             <div key={s.path} className="col gap20" style={{ padding: '48px 0' }}>
-              <Photo caption={s.ph} style={{ aspectRatio: '4/3' }} />
+              <Photo src={s.img} caption={s.ph} sizes="(max-width: 760px) 100vw, 33vw" style={{ aspectRatio: '4/3' }} />
               <span className="eyebrow">{s.path}</span>
               <p className="serif" style={{ fontWeight: 300, fontSize: 24, lineHeight: 1.25, margin: 0 }}>{s.q}</p>
               <span className="small muted">{s.who}</span>

@@ -81,7 +81,7 @@ export default function AssessmentClient({ initialAnswers, initialStep, hasDraft
               <span className="small muted">Progress saves after every answer. Leave and return anytime on this device, or sign in to continue anywhere.</span>
             </div>
           </div>
-          <Photo caption="Owner at their desk, reading: calm, unposed" style={{ minHeight: 420 }} />
+          <Photo src="/images/assess-intro.jpg" caption="An owner at her desk, reading a report" style={{ minHeight: 420 }} />
         </main>
       )}
 

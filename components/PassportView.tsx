@@ -1,3 +1,4 @@
+import Photo from './Photo';
 import { fmtDate } from '@/lib/guard';
 
 const cr = (n: any) => (n == null ? '—' : '₹' + Number(n) + ' Cr');
@@ -27,7 +28,7 @@ export default function PassportView({ data, sections }: { data: any; sections: 
           <span className="t2" style={{ fontSize: 15 }}>{[b.industry, has('Identity') ? [b.city, b.state].filter(Boolean).join(', ') : b.state, b.years_band ? b.years_band + ' yrs operating' : null, has('Identity') ? b.legal_name : null].filter(Boolean).join(' · ')}</span>
           <div className="row gap8" style={{ fontSize: 12.5 }}>{has('Transition status') && <span className="pill p-solid" style={{ padding: '5px 10px' }}>Status · {status}</span>}<span className="pill p-line" style={{ padding: '5px 10px' }}>Passport ID LH-P-{String(b.id).slice(0, 6).toUpperCase()}</span><span className="pill p-line" style={{ padding: '5px 10px' }}>Updated {fmtDate(b.updated_at)}</span></div>
         </div>
-        <div className="photo" style={{ aspectRatio: '16/10' }}><span>The business premises (owner&rsquo;s choice)</span></div>
+        <Photo src="/images/passport-premises.jpg" caption="Business premises (representative photo until the owner adds their own)" style={{ aspectRatio: '16/10' }} />
       </section>
       <section className="grid g-auto-300" style={{ gap: 0, borderTop: '1px solid var(--ink)', borderLeft: '1px solid var(--ink)' }}>
         {blocks.filter(([s]) => has(s)).map(([, t, rows]) => (

@@ -14,6 +14,9 @@ const F = [
   { title: 'What you’re looking for', fields: [['industries', 'Preferred industries', ['Manufacturing', 'Distribution', 'Wholesale', 'B2B services', 'Specialty retail', 'Open']], ['inv', 'Your involvement', ['Full-time operator', 'Board / oversight', 'Either']], ['when', 'Timeline', ['Within 6 months', '6–12 months', '12–24 months']]] }
 ] as const;
 
+const IND_IMG: Record<string, string> = { Manufacturing: 'manufacturing', Distribution: 'distribution', Wholesale: 'wholesale', 'B2B services': 'services', 'Specialty retail': 'retail' };
+const indImg = (i: string) => `/images/listing-${IND_IMG[i] || 'manufacturing'}.jpg`;
+
 const vc = (v: string) => (v === 'Financially verified' ? 'p-green' : v === 'Business verified' ? 'p-green-l' : 'p-grey');
 
 export default function AcquireClient({ listings, signedIn, hasProfile, requested, savedLabels }: { listings: L[]; signedIn: boolean; hasProfile: boolean; requested: string[]; savedLabels: string[] }) {
@@ -97,7 +100,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
             const req = done.includes(l.id);
             return (
               <div key={l.id} className="card col gap16" style={{ padding: 24 }}>
-                <Photo caption="Anonymised industry photo" style={{ aspectRatio: '16/9', margin: '-24px -24px 0', borderBottom: '1px solid var(--ink)' }} />
+                <Photo src={indImg(l.industry)} caption={`${l.industry}: representative photo, not this business`} sizes="(max-width: 760px) 100vw, 33vw" style={{ aspectRatio: '16/9', margin: '-24px -24px 0', borderBottom: '1px solid var(--ink)' }} />
                 <div className="row between" style={{ fontSize: 12 }}><span style={{ color: 'var(--gold)', fontWeight: 500 }}>{l.industry}</span><span className="row gap6">{l.is_sample && <span className="sample-tag">Sample</span>}<span className={'pill ' + vc(l.verification)}>{l.verification}</span></span></div>
                 <span className="serif" style={{ fontSize: 23, lineHeight: 1.2 }}>{l.title}</span>
                 <span className="t2" style={{ fontSize: 14 }}>{l.description}</span>

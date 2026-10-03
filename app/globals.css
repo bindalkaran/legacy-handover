@@ -109,6 +109,7 @@ img { max-width: 100%; }
 .err { color: var(--warn); font-size: 13px; }
 .sample-tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--dis); padding: 2px 6px; }
 
+.photo-img { position: relative; overflow: hidden; background: #E8E1D2; }
 .photo { position: relative; background: linear-gradient(135deg, #E8E1D2 0%, #DCD3C1 100%); display: flex; align-items: flex-end; padding: 18px; color: #6A655B; font-size: 13px; overflow: hidden; }
 .photo::after { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(135deg, rgba(27,26,23,.035) 0 1px, transparent 1px 14px); pointer-events: none; }
 .photo span { position: relative; z-index: 1; max-width: 80%; font-style: italic; font-family: var(--serif); font-size: 15px; }
