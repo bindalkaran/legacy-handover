@@ -36,17 +36,17 @@ DATABASE_URL=pglite:./.pglite npx next build
 - Writing style for any copy: no em dashes, plain human prose.
 
 ## Environment
-Set on Vercel: `DATABASE_URL` (Neon), `SESSION_SECRET`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`, plus the temporary testing flags `OTP_PREVIEW=1` and `PAYMENTS_TEST_MODE=1`.
-Production is locked down by default: without a provider, codes are never shown on screen and the report never unlocks free, unless those two flags are set. Remove both flags before announcing.
+Set on Vercel: `DATABASE_URL` (Neon), `SESSION_SECRET`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_FIREBASE_*` (project `legacy-handover`, Blaze plan, SMS region policy India only), plus the temporary testing flag `PAYMENTS_TEST_MODE=1`.
+Production is locked down by default: without a provider, codes are never shown on screen and the report never unlocks free, unless those two flags are set. Remove `PAYMENTS_TEST_MODE` once Razorpay is live. Email sign-in is hidden in production until `NEXT_PUBLIC_EMAIL_OTP=1` and a Resend key are set.
 Planned providers: Firebase Phone Auth for sign-in (`NEXT_PUBLIC_FIREBASE_*`; client sends the SMS, `lib/firebase.ts` verifies the ID token against Google's keys) and Razorpay (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, webhook at `/api/razorpay/webhook`). Resend/MSG91 remain as optional alternatives. `ANTHROPIC_API_KEY` optional.
 
 ## Accounts and roles
 `users.role` is the active workspace; `users.roles` holds every role the account has. Check access with `hasRole(user, ...)`. The sign-in tab only changes the active role when the person picked it (or arrived with `?role=`).
 
 ## Open items
-1. Add Firebase web config + authorized domains, then remove `OTP_PREVIEW`.
+1. When the custom domain is live, add it to Firebase > Authentication > Settings > Authorised domains.
 2. Add Razorpay keys + webhook, then remove `PAYMENTS_TEST_MODE`.
-3. Replace illustrative stories, founder note and photo placeholders with real content.
+3. Photos are AI-generated (Pletor) and labelled illustrative; replace with real photography and consented stories when available. Founder note still placeholder copy.
 4. Legal review of `/privacy` and `/terms`.
 5. Documents are base64 in Postgres (4 MB cap); move to object storage when data rooms grow.
 6. Regional-language UI strings (preference is stored, translations not done).

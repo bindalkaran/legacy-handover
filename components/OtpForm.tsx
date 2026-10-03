@@ -5,6 +5,9 @@ import { firebaseConfigured, sendFirebaseCode, firebaseError } from '@/lib/fireb
 
 type Role = 'owner' | 'buyer' | 'advisor';
 
+// Email codes need an email provider in production (NEXT_PUBLIC_EMAIL_OTP=1 once Resend is configured).
+const EMAIL_OTP = process.env.NEXT_PUBLIC_EMAIL_OTP === '1' || process.env.NODE_ENV !== 'production';
+
 export default function OtpForm({ role, next, submitLabel = 'Verify & continue', onDone, explicit = true }: { role: Role; next?: string; submitLabel?: string; onDone?: (redirect: string) => void; explicit?: boolean }) {
   const [step, setStep] = useState<0 | 1>(0);
   const [mode, setMode] = useState<'phone' | 'email'>('phone');
@@ -61,8 +64,10 @@ export default function OtpForm({ role, next, submitLabel = 'Verify & continue',
         </label>
       )}
       <button id="otp-send" className="btn btn-lg" onClick={send} disabled={pending}>{pending ? 'Sending…' : 'Send one-time code'}</button>
-      <div className="row" style={{ gap: 12, color: 'var(--dis)', fontSize: 12, flexWrap: 'nowrap' }}><span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} />or<span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} /></div>
-      <button className="btn btn-ghost" onClick={() => { setMode(mode === 'phone' ? 'email' : 'phone'); setIdent(''); setErr(''); }}>{mode === 'phone' ? 'Continue with email' : 'Use mobile number instead'}</button>
+      {EMAIL_OTP && <>
+        <div className="row" style={{ gap: 12, color: 'var(--dis)', fontSize: 12, flexWrap: 'nowrap' }}><span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} />or<span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} /></div>
+        <button className="btn btn-ghost" onClick={() => { setMode(mode === 'phone' ? 'email' : 'phone'); setIdent(''); setErr(''); }}>{mode === 'phone' ? 'Continue with email' : 'Use mobile number instead'}</button>
+      </>}
       {err && <span className="err">{err}</span>}
     </div>
   );
