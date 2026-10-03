@@ -5,7 +5,7 @@ import { createHash, randomInt, timingSafeEqual, randomBytes } from 'node:crypto
 import { q, one, dbUrl, audit, track } from './db';
 
 export type Role = 'owner' | 'buyer' | 'advisor';
-export type User = { id: string; phone: string | null; email: string | null; name: string | null; role: Role; firm: string | null; city: string | null; language: string; country: string; notif_prefs: any; marketing_consent: boolean; matching_consent: boolean; created_at: string };
+export type User = { id: string; phone: string | null; email: string | null; name: string | null; role: Role; roles: Role[]; firm: string | null; city: string | null; language: string; country: string; notif_prefs: any; marketing_consent: boolean; matching_consent: boolean; created_at: string };
 
 const SESSION_COOKIE = 'lh_session';
 const ADMIN_COOKIE = 'lh_admin';
@@ -40,7 +40,7 @@ export async function currentUser(): Promise<User | null> {
   try {
     const { payload } = await jwtVerify(c, secretKey());
     if (!payload.sub) return null;
-    return await one<User>(`SELECT id, phone, email, name, role, firm, city, language, country, notif_prefs, marketing_consent, matching_consent, created_at FROM users WHERE id = $1 AND deleted_at IS NULL`, [payload.sub]);
+    return await one<User>(`SELECT id, phone, email, name, role, roles, firm, city, language, country, notif_prefs, marketing_consent, matching_consent, created_at FROM users WHERE id = $1 AND deleted_at IS NULL`, [payload.sub]);
   } catch {
     return null;
   }
@@ -57,10 +57,15 @@ export function normaliseIdentifier(raw: string): { id: string; kind: 'phone' | 
   return /^[6-9]\d{9}$/.test(digits) ? { id: '+91' + digits, kind: 'phone' } : null;
 }
 
-export function otpDeliveryMode(kind: 'phone' | 'email'): 'sms' | 'email' | 'preview' {
+/** Showing the code on screen is only allowed outside production (or with OTP_PREVIEW=1), otherwise anyone could sign in as any number. */
+export function otpPreviewAllowed() {
+  return process.env.OTP_PREVIEW === '1' || (process.env.VERCEL_ENV !== 'production' && process.env.NODE_ENV !== 'production');
+}
+
+export function otpDeliveryMode(kind: 'phone' | 'email'): 'sms' | 'email' | 'preview' | 'off' {
   if (kind === 'email' && process.env.RESEND_API_KEY && process.env.OTP_FROM_EMAIL) return 'email';
   if (kind === 'phone' && process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID) return 'sms';
-  return 'preview';
+  return otpPreviewAllowed() ? 'preview' : 'off';
 }
 
 export async function issueOtp(raw: string): Promise<{ ok: true; identifier: string; mode: string; previewCode?: string } | { ok: false; error: string }> {
@@ -68,9 +73,10 @@ export async function issueOtp(raw: string): Promise<{ ok: true; identifier: str
   if (!n) return { ok: false, error: 'Enter a valid 10-digit Indian mobile number or an email address.' };
   const recent = await one(`SELECT count(*)::int AS c FROM otp_codes WHERE identifier = $1 AND created_at > now() - interval '1 hour'`, [n.id]);
   if ((recent?.c ?? 0) >= 6) return { ok: false, error: 'Too many codes requested. Please wait an hour and try again.' };
+  const mode = otpDeliveryMode(n.kind);
+  if (mode === 'off') return { ok: false, error: n.kind === 'phone' ? (otpDeliveryMode('email') === 'email' ? 'Mobile codes are coming soon. Please continue with email for now.' : 'Sign-in opens shortly. Request a call from the home page and we will set you up.') : 'Email codes are coming soon. Please use your mobile number for now.' };
   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
   await q(`INSERT INTO otp_codes (identifier, code_hash, expires_at) VALUES ($1, $2, now() + interval '10 minutes')`, [n.id, hash(code)]);
-  const mode = otpDeliveryMode(n.kind);
   try {
     if (mode === 'email') {
       const r = await fetch('https://api.resend.com/emails', {
@@ -91,7 +97,8 @@ export async function issueOtp(raw: string): Promise<{ ok: true; identifier: str
   return { ok: true, identifier: n.id, mode, previewCode: mode === 'preview' ? code : undefined };
 }
 
-export async function verifyOtp(identifier: string, code: string, role: Role, extra?: { name?: string }): Promise<{ ok: true; user: User } | { ok: false; error: string }> {
+/** Checks and consumes a code without signing in, e.g. to confirm account deletion. */
+export async function checkOtp(identifier: string, code: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const row = await one(`SELECT id, code_hash, attempts, expires_at FROM otp_codes WHERE identifier = $1 AND used_at IS NULL ORDER BY created_at DESC LIMIT 1`, [identifier]);
   if (!row) return { ok: false, error: 'Request a new code to continue.' };
   if (new Date(row.expires_at).getTime() < Date.now()) return { ok: false, error: 'That code has expired. Request a new one.' };
@@ -102,23 +109,37 @@ export async function verifyOtp(identifier: string, code: string, role: Role, ex
     return { ok: false, error: 'That code doesn’t match. Check and try again.' };
   }
   await q(`UPDATE otp_codes SET used_at = now() WHERE id = $1`, [row.id]);
+  return { ok: true };
+}
+
+export async function verifyOtp(identifier: string, code: string, role: Role, explicit = true, extra?: { name?: string }): Promise<{ ok: true; user: User } | { ok: false; error: string }> {
+  const c = await checkOtp(identifier, code);
+  if (!c.ok) return c;
+  return { ok: true, user: await signInVerified(identifier, role, explicit, extra) };
+}
+
+/** Signs in an identifier whose ownership has already been proven (our OTP or a verified Firebase phone token). */
+export async function signInVerified(identifier: string, role: Role, explicit = true, extra?: { name?: string }): Promise<User> {
   const col = identifier.includes('@') ? 'email' : 'phone';
   let user = await one<User>(`SELECT * FROM users WHERE ${col} = $1`, [identifier]);
   if (!user) {
-    user = await one<User>(`INSERT INTO users (${col}, role, name) VALUES ($1, $2, $3) RETURNING *`, [identifier, role, extra?.name ?? null]);
+    user = await one<User>(`INSERT INTO users (${col}, role, roles, name) VALUES ($1, $2, ARRAY[$2::text], $3) RETURNING *`, [identifier, role, extra?.name ?? null]);
     await track('account_created', user!.id, { role });
   } else {
-    user = await one<User>(`UPDATE users SET role = $2, deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING *`, [user.id, role]);
+    // The sign-in tab only switches workspace when the person chose it; otherwise keep their current role.
+    user = explicit
+      ? await one<User>(`UPDATE users SET role = $2, roles = CASE WHEN $2 = ANY(roles) THEN roles ELSE array_append(roles, $2::text) END, deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING *`, [user.id, role])
+      : await one<User>(`UPDATE users SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING *`, [user.id]);
   }
   await createSession(user!.id);
   await attachPendingInvites(user!);
   await audit({ actorId: user!.id, action: 'Signed in', kind: 'Security', detail: { via: col } });
-  return { ok: true, user: user! };
+  return user!;
 }
 
 async function attachPendingInvites(user: User) {
   const ids = [user.phone, user.email].filter(Boolean);
-  if (!ids.length) return;
+  if (!ids.length || !hasRole(user, 'advisor')) return;
   // Owner invited this person as their advisor
   await q(`UPDATE advisor_links SET advisor_user_id = $1, status = 'active' WHERE advisor_user_id IS NULL AND direction = 'owner_invited' AND status = 'pending' AND lower(invited_contact) = ANY($2::text[])`, [user.id, ids.map((x) => String(x).toLowerCase())]);
 }
@@ -149,4 +170,8 @@ export async function isAdmin() {
 
 export async function adminLogout() {
   (await cookies()).delete(ADMIN_COOKIE);
+}
+
+export function hasRole<T extends Pick<User, 'role' | 'roles'>>(u: T | null | undefined, r: Role): u is T {
+  return !!u && (u.role === r || (u.roles || []).includes(r));
 }

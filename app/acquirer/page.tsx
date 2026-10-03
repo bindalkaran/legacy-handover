@@ -3,6 +3,7 @@ import { requireUser, ago } from '@/lib/guard';
 import { q, one, config } from '@/lib/db';
 import { matchScore } from '@/lib/matching';
 import { BUYER_STAGES } from '@/lib/constants';
+import { nextStep } from '@/lib/deals';
 import Shell from '@/components/Shell';
 import { RequestButton, FrequencyPicker } from '@/components/BuyerClient';
 
@@ -33,7 +34,7 @@ export default async function Acquirer({ searchParams }: { searchParams: Promise
   }
   const showSamples = await config<boolean>('show_samples', true);
   const listings = await q(`SELECT * FROM listings WHERE status = 'published' ${showSamples ? '' : 'AND NOT is_sample'}`);
-  const requests = await q(`SELECT ar.*, l.title, l.is_sample FROM access_requests ar JOIN listings l ON l.id = ar.listing_id WHERE ar.buyer_id = $1 ORDER BY ar.created_at DESC`, [user.id]);
+  const requests = await q(`SELECT ar.*, l.title, l.is_sample, (SELECT d.id FROM deals d WHERE d.listing_id = ar.listing_id AND d.buyer_id = ar.buyer_id ORDER BY d.created_at DESC LIMIT 1) AS deal_id FROM access_requests ar JOIN listings l ON l.id = ar.listing_id WHERE ar.buyer_id = $1 ORDER BY ar.created_at DESC`, [user.id]);
   const reqIds = new Set(requests.map((r) => r.listing_id));
   const matches = listings.map((l) => ({ l, ...matchScore({ ...profile, industries: profile.industries }, l as any) })).filter((m) => m.score >= 40).sort((a, b) => b.score - a.score);
   const deals = await q(`SELECT d.*, l.title, (SELECT count(*)::int FROM documents x WHERE x.business_id = d.business_id AND x.level <= d.buyer_max_level AND x.permission <> 'Hidden') AS docs, (SELECT count(*)::int FROM deal_questions dq WHERE dq.deal_id = d.id AND dq.answer IS NULL) AS openq FROM deals d LEFT JOIN listings l ON l.id = d.listing_id WHERE d.buyer_id = $1 ORDER BY d.created_at DESC`, [user.id]);
@@ -88,7 +89,9 @@ export default async function Acquirer({ searchParams }: { searchParams: Promise
             {requests.map((r) => (
               <div key={r.id} className="trow" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(100px,150px) minmax(140px,180px)' }}>
                 <span>{r.title}</span><span className="xs muted">Sent {ago(r.created_at)}</span>
-                <span className={'pill ' + (r.status === 'Approved' ? 'p-green' : r.status === 'Declined' ? 'p-grey' : 'p-gold')} style={{ justifySelf: 'start' }}>{r.status === 'Approved' ? 'Approved · workspace open' : r.status === 'Declined' ? 'Declined by owner' : 'Owner reviewing'}</span>
+                {r.status === 'Approved' && r.deal_id
+                  ? <Link href={'/deals/' + r.deal_id} className="pill p-green" style={{ justifySelf: 'start' }}>Approved · open workspace →</Link>
+                  : <span className={'pill ' + (r.status === 'Approved' ? 'p-green' : r.status === 'Declined' ? 'p-grey' : 'p-gold')} style={{ justifySelf: 'start' }}>{r.status === 'Approved' ? 'Approved · workspace opening' : r.status === 'Declined' ? 'Declined by owner' : 'Owner reviewing'}</span>}
               </div>
             ))}
           </div>
@@ -98,11 +101,13 @@ export default async function Acquirer({ searchParams }: { searchParams: Promise
         <div className="grid g-auto-300" style={{ gap: 14 }}>
           {deals.length === 0 && <div className="card small muted">No active deals. A workspace opens when an owner approves your request.</div>}
           {deals.map((d) => {
-            const si = dealStageIdx(d.stage, !!(d.nda_owner_at && d.nda_buyer_at));
+            const nda = !!(d.nda_owner_at && d.nda_buyer_at);
+            const si = dealStageIdx(d.stage, nda);
             return (
               <div key={d.id} className="card col gap14">
                 <span className="serif" style={{ fontSize: 22 }}>{d.title || 'Deal ' + d.ref}</span>
                 <div className="row gap4" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>{BUYER_STAGES.map((s, i) => <div key={s} className="col gap6" style={{ flex: 1 }}><div style={{ height: 6, background: i < si ? 'var(--green)' : i === si ? 'var(--gold)' : 'var(--rule-l)' }} /><span style={{ fontSize: 10.5, lineHeight: 1.3, color: i <= si ? 'var(--ink)' : 'var(--dis)' }}>{s}</span></div>)}</div>
+                <span className="small" style={{ color: 'var(--green)' }}>Next step: {nextStep(d, 'buyer', nda)}</span>
                 <div className="row gap8 xs muted rule-tl" style={{ paddingTop: 12 }}><span>{d.nda_owner_at && d.nda_buyer_at ? 'NDA signed' : 'NDA pending'}</span><span>·</span><span>{d.docs} documents</span><span>·</span><span>{d.openq} open questions</span></div>
                 <Link href={'/deals/' + d.id} className="btn btn-sm" style={{ alignSelf: 'flex-start' }}>Open workspace →</Link>
               </div>

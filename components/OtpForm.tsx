@@ -1,10 +1,11 @@
 'use client';
-import { useState, useTransition } from 'react';
-import { sendCode, verifyCode } from '@/app/actions/auth';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { sendCode, verifyCode, verifyFirebase } from '@/app/actions/auth';
+import { firebaseConfigured, sendFirebaseCode, firebaseError } from '@/lib/firebase-client';
 
 type Role = 'owner' | 'buyer' | 'advisor';
 
-export default function OtpForm({ role, next, submitLabel = 'Verify & continue', onDone }: { role: Role; next?: string; submitLabel?: string; onDone?: (redirect: string) => void }) {
+export default function OtpForm({ role, next, submitLabel = 'Verify & continue', onDone, explicit = true }: { role: Role; next?: string; submitLabel?: string; onDone?: (redirect: string) => void; explicit?: boolean }) {
   const [step, setStep] = useState<0 | 1>(0);
   const [mode, setMode] = useState<'phone' | 'email'>('phone');
   const [ident, setIdent] = useState('');
@@ -13,17 +14,34 @@ export default function OtpForm({ role, next, submitLabel = 'Verify & continue',
   const [preview, setPreview] = useState<string | undefined>();
   const [err, setErr] = useState('');
   const [pending, start] = useTransition();
+  const fbConfirm = useRef<null | ((code: string) => Promise<string>)>(null);
+  const [wait, setWait] = useState(0);
+  useEffect(() => { if (wait <= 0) return; const t = setTimeout(() => setWait(wait - 1), 1000); return () => clearTimeout(t); }, [wait]);
 
   const send = () => start(async () => {
     setErr('');
+    if (mode === 'phone' && firebaseConfigured) {
+      const digits = ident.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').replace(/^0(?=\d{10}$)/, '');
+      if (!/^[6-9]\d{9}$/.test(digits)) return setErr('Enter a valid 10-digit Indian mobile number.');
+      try { fbConfirm.current = await sendFirebaseCode('+91' + digits, 'otp-send'); }
+      catch (e) { return setErr(firebaseError(e)); }
+      setNormalised('+91' + digits); setPreview(undefined); setStep(1); setWait(30);
+      return;
+    }
+    fbConfirm.current = null;
     const r = await sendCode(mode === 'phone' ? '+91' + ident : ident);
     if (!r.ok) return setErr(r.error);
-    setNormalised(r.identifier); setPreview(r.previewCode); setStep(1);
+    setNormalised(r.identifier); setPreview(r.previewCode); setStep(1); setWait(30);
   });
   const verify = () => start(async () => {
     setErr('');
     if (!/^\d{6}$/.test(code)) return setErr('Enter the 6-digit code.');
-    const r = await verifyCode(normalised, code, role, next);
+    let r;
+    if (fbConfirm.current) {
+      let token: string;
+      try { token = await fbConfirm.current(code); } catch (e) { return setErr(firebaseError(e)); }
+      r = await verifyFirebase(token, role, next, explicit);
+    } else r = await verifyCode(normalised, code, role, next, explicit);
     if (!r.ok) return setErr(r.error);
     if (onDone) onDone(r.redirect); else window.location.href = r.redirect;
   });
@@ -42,7 +60,7 @@ export default function OtpForm({ role, next, submitLabel = 'Verify & continue',
           <input value={ident} onChange={(e) => setIdent(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder="you@company.in" type="email" autoComplete="email" className="input" style={{ fontSize: 16 }} />
         </label>
       )}
-      <button className="btn btn-lg" onClick={send} disabled={pending}>{pending ? 'Sending…' : 'Send one-time code'}</button>
+      <button id="otp-send" className="btn btn-lg" onClick={send} disabled={pending}>{pending ? 'Sending…' : 'Send one-time code'}</button>
       <div className="row" style={{ gap: 12, color: 'var(--dis)', fontSize: 12, flexWrap: 'nowrap' }}><span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} />or<span style={{ flex: 1, height: 1, background: 'var(--rule-l)' }} /></div>
       <button className="btn btn-ghost" onClick={() => { setMode(mode === 'phone' ? 'email' : 'phone'); setIdent(''); setErr(''); }}>{mode === 'phone' ? 'Continue with email' : 'Use mobile number instead'}</button>
       {err && <span className="err">{err}</span>}
@@ -54,7 +72,7 @@ export default function OtpForm({ role, next, submitLabel = 'Verify & continue',
       {preview && <div className="notice">Preview delivery: SMS/email sending isn&rsquo;t configured yet, so your code is <b className="tab">{preview}</b>. Configure an OTP provider before launch.</div>}
       <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={(e) => e.key === 'Enter' && verify()} placeholder="6-digit code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} className="input tab" style={{ fontSize: 28, letterSpacing: '.4em', textAlign: 'center', padding: 16 }} />
       <button className="btn btn-lg" onClick={verify} disabled={pending}>{pending ? 'Verifying…' : submitLabel}</button>
-      <span className="small muted">Didn&rsquo;t get it? <button className="linkbtn" onClick={send} disabled={pending}>Send again</button></span>
+      <span className="small muted">Didn&rsquo;t get it? {wait > 0 ? <span className="tab">Resend in {wait}s</span> : <button className="linkbtn" onClick={() => { setStep(0); setCode(''); }} disabled={pending}>Send again</button>}</span>
       {err && <span className="err">{err}</span>}
     </div>
   );

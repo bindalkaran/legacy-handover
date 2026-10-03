@@ -33,10 +33,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const b = ctx.business;
   const s = toStored(ctx.score);
   const tasksRaw = await q(`SELECT * FROM tasks WHERE business_id = $1 ORDER BY (status = 'done'), CASE priority WHEN 'High' THEN 0 WHEN 'Medium' THEN 1 ELSE 2 END, impact DESC, sort`, [b.id]);
-  const tasks: TaskRow[] = tasksRaw.map((t) => ({ id: t.id, title: t.title, category: t.category, priority: t.priority, effort: t.effort, impact: t.impact, why: t.why, criteria: t.criteria, assignee: t.assignee, due: fmtDate(t.due_date), done: t.status === 'done' }));
+  const allTasks: TaskRow[] = tasksRaw.map((t) => ({ id: t.id, title: t.title, category: t.category, priority: t.priority, effort: t.effort, impact: t.impact, why: t.why, criteria: t.criteria, assignee: t.assignee, due: fmtDate(t.due_date), done: t.status === 'done' }));
+  // Free plan (PRD §65): basic tasks only. The full prioritised plan is part of the detailed report.
+  const FREE_TASKS = 3;
+  const tasks = ctx.paid ? allTasks : allTasks.slice(0, FREE_TASKS);
+  const lockedCount = allTasks.length - tasks.length;
   const boost = tasksRaw.filter((t) => t.status === 'done' && new Date(t.completed_at) > new Date(ctx.score!.created_at)).reduce((a, t) => a + t.impact, 0);
   const nDone = tasks.filter((t) => t.done).length;
-  const next = tasksRaw.find((t) => t.status !== 'done');
+  const next = tasksRaw.find((t) => t.status !== 'done' && tasks.some((x) => x.id === t.id));
   const deals = await q(`SELECT id, ref FROM deals WHERE business_id = $1 ORDER BY created_at DESC`, [b.id]);
   const pendingReq = await q(`SELECT ar.id, ar.created_at, ar.message, bp.buyer_type, bp.capital, bp.experience, bp.involvement, bp.timeline, bp.verification_stage FROM access_requests ar JOIN listings l ON l.id = ar.listing_id LEFT JOIN buyer_profiles bp ON bp.user_id = ar.buyer_id WHERE l.business_id = $1 AND ar.status = 'Owner reviewing' ORDER BY ar.created_at DESC`, [b.id]);
 
@@ -114,16 +118,18 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               </div>
               <div className="col gap8 rule-tl" style={{ paddingTop: 14 }}>
                 <span className="small muted">Paths that fit (from your report)</span>
-                <div className="row gap8">{P.map((p) => <span key={p.t} className={'pill ' + (p.fit === 'High fit' ? 'p-green' : 'p-grey')} style={{ fontSize: 13, padding: '6px 12px' }}>{p.t}</span>)}</div>
+                {ctx.paid
+                  ? <div className="row gap8">{P.map((p) => <span key={p.t} className={'pill ' + (p.fit === 'High fit' ? 'p-green' : 'p-grey')} style={{ fontSize: 13, padding: '6px 12px' }}>{p.t}</span>)}</div>
+                  : <span className="small t2">Path fit is part of the detailed report. <Link href="/report#unlock" className="link-u">Unlock it</Link></span>}
               </div>
             </div>
           </div>
-          <TaskList tasks={tasks.filter((t) => !t.done).slice(0, 5)} showFilter={false} />
-          <Link href="/dashboard?view=tasks" className="link-u small" style={{ alignSelf: 'flex-start' }}>See all {tasks.length} tasks →</Link>
+          <TaskList tasks={tasks.slice(0, 5)} />
+          {lockedCount > 0 ? <LockedTasks n={lockedCount} /> : <Link href="/dashboard?view=tasks" className="link-u small" style={{ alignSelf: 'flex-start' }}>See all {tasks.length} tasks →</Link>}
         </div>
       )}
 
-      {view === 'tasks' && <TaskList tasks={tasks} />}
+      {view === 'tasks' && <div className="col gap14"><TaskList tasks={tasks} />{lockedCount > 0 && <LockedTasks n={lockedCount} />}</div>}
 
       {view === 'docs' && <DocsView businessId={b.id} />}
 
@@ -215,6 +221,15 @@ async function OpportunitiesView({ b, requests, deals }: { b: any; requests: any
           {deals.map((d) => <Link key={d.id} href={'/deals/' + d.id} className="card row between"><span>Workspace {d.ref}</span><span>Open →</span></Link>)}
         </>}
       </div>
+    </div>
+  );
+}
+
+function LockedTasks({ n }: { n: number }) {
+  return (
+    <div className="row between" style={{ gap: 16, padding: '18px 20px', border: '1px dashed var(--ink)', background: 'var(--tint)' }}>
+      <span className="t2" style={{ fontSize: 14.5 }}>{n} more tasks in your prioritised readiness plan, with due dates and score impact.</span>
+      <Link href="/report#unlock" className="btn btn-green btn-sm">Unlock the full plan →</Link>
     </div>
   );
 }

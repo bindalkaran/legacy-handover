@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import { ownerContext, toStored } from '@/lib/owner';
-import { razorpayEnabled } from '@/lib/payments';
+import { paymentMode } from '@/lib/payments';
 import { track } from '@/lib/db';
 import ReportView from '@/components/ReportView';
 
@@ -14,5 +14,5 @@ export default async function ReportPage() {
   const ctx = await ownerContext(user);
   if (!ctx.score) redirect('/assessment');
   await track('report_viewed', user.id);
-  return <ReportView s={toStored(ctx.score)} unlocked={ctx.paid} testMode={!razorpayEnabled()} level={ctx.business?.confidentiality_level ?? 0} />;
+  return <ReportView s={toStored(ctx.score)} unlocked={ctx.paid} testMode={paymentMode() === 'test'} level={ctx.business?.confidentiality_level ?? 0} />;
 }

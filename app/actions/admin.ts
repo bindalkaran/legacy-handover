@@ -96,7 +96,7 @@ export async function decideDraft(id: string, approve: boolean, body?: string) {
 export async function saveWeights(weights: Record<string, number>) {
   await guard();
   const w: Record<string, number> = {};
-  for (const k of COMPONENT_KEYS) w[k] = Math.max(0, Math.min(40, Math.round(Number(weights[k]) || 0)));
+  for (const k of COMPONENT_KEYS) w[k] = Math.max(0, Math.min(30, Math.round(Number(weights[k]) || 0)));
   const total = Object.values(w).reduce((a, b) => a + b, 0);
   if (total !== 100) return { ok: false, error: `Weights must total 100 (currently ${total}).` };
   const cur = await config<string>('active_score_version', 'score-v1.0');

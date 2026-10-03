@@ -40,7 +40,7 @@ export default function UnlockBlock({ testMode }: { testMode: boolean }) {
   });
 
   return (
-    <section className="grid g-auto-380 noprint" style={{ border: '1px solid var(--ink)', background: 'var(--card)', gap: 0 }}>
+    <section id="unlock" className="grid g-auto-380 noprint" style={{ border: '1px solid var(--ink)', background: 'var(--card)', gap: 0 }}>
       <div className="col gap16" style={{ padding: 36 }}>
         <span className="eyebrow">Your free results end here</span>
         <h2 className="serif" style={{ fontWeight: 300, fontSize: 34, letterSpacing: '-.025em', lineHeight: 1.08, margin: 0 }}>Unlock the detailed report</h2>

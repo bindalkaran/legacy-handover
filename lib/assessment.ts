@@ -16,7 +16,7 @@ export type Step = { key: string; title: string; intro: string; questions: Quest
 
 const Y = ['Yes', 'Partly', 'No'];
 const DEP = ['Only me', 'Shared', 'Team handles it'];
-const hasSuccessor = (a: Answers) => a.hasSucc !== undefined && a.hasSucc >= 0 && a.hasSucc < 2;
+const hasSuccessor = (a: Answers) => a.hasSucc !== undefined && a.hasSucc < 2; // includes "I don't know", as in the design
 
 export const ASSESSMENT_VERSION = 'assess-v1.0';
 export const CALC_VERSION = 'calc-v1.0';
@@ -145,7 +145,7 @@ export function compute(a: Answers, weights: Record<string, number>): ScoreResul
   const mult = 2.5 + (t / 100) * 3.5;
   const value: [number, number] | null = profit > 0 ? [+(profit * (mult - 0.6)).toFixed(1), +(profit * (mult + 0.6)).toFixed(1)] : null;
   const components = COMPONENT_KEYS.map((k) => ({ k, s: Math.round(comp[k] * 100), w: weights[k] ?? 0 }));
-  const unknown = Object.values(a).filter((x) => x < 0).length;
+  const unknown = Object.entries(a).filter(([id, x]) => x < 0 && ALL_QUESTIONS[id] && (!ALL_QUESTIONS[id].showIf || ALL_QUESTIONS[id].showIf!(a))).length;
   const lbl = (id: string, fallback: string | null) => (a[id] !== undefined && a[id] >= 0 ? ALL_QUESTIONS[id].options[a[id]] : fallback);
   return {
     t, r, ind, dep: Math.round((1 - dep) * 100), components, value, revenue: revMid, profit: +profit.toFixed(2),

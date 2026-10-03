@@ -19,7 +19,7 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
         <span className="small" style={{ color: 'var(--on-green-m)' }}>Plan the handover. Protect the legacy.</span>
       </div>
       <div style={{ display: 'grid', placeItems: 'center', padding: '48px 24px' }}>
-        <SignInClient initialRole={initial} next={sp.next} />
+        <SignInClient initialRole={initial} next={sp.next} roleChosen={!!sp.role} />
       </div>
     </div>
   );

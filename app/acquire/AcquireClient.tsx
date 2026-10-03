@@ -14,13 +14,13 @@ const F = [
   { title: 'What you’re looking for', fields: [['industries', 'Preferred industries', ['Manufacturing', 'Distribution', 'Wholesale', 'B2B services', 'Specialty retail', 'Open']], ['inv', 'Your involvement', ['Full-time operator', 'Board / oversight', 'Either']], ['when', 'Timeline', ['Within 6 months', '6–12 months', '12–24 months']]] }
 ] as const;
 
-const vc = (v: string) => (v === 'Financially verified' ? 'p-green' : v === 'Business verified' ? 'p-green' : 'p-grey');
+const vc = (v: string) => (v === 'Financially verified' ? 'p-green' : v === 'Business verified' ? 'p-green-l' : 'p-grey');
 
-export default function AcquireClient({ listings, signedIn, hasProfile, requested }: { listings: L[]; signedIn: boolean; hasProfile: boolean; requested: string[] }) {
+export default function AcquireClient({ listings, signedIn, hasProfile, requested, savedLabels }: { listings: L[]; signedIn: boolean; hasProfile: boolean; requested: string[]; savedLabels: string[] }) {
   const router = useRouter();
   const [ind, setInd] = useState('All');
   const [intl, setIntl] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [savedSet, setSavedSet] = useState<string[]>(savedLabels);
   const [reg, setReg] = useState<null | { step: number; target?: L; afterSave?: boolean }>(null);
   const [f, setF] = useState<Record<string, any>>({ industries: [] });
   const [done, setDone] = useState<string[]>(requested);
@@ -29,10 +29,13 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
   const [p, start] = useTransition();
   const [profile, setProfile] = useState(hasProfile);
   const inds = ['All', 'Manufacturing', 'Distribution', 'Wholesale', 'B2B services', 'Specialty retail'];
+  const label = (ind === 'All' ? 'All industries' : ind) + (intl ? ' · international' : '');
+  const saved = savedSet.includes(label);
   const list = listings.filter((l) => (ind === 'All' || l.industry === ind) && (!intl || l.open_international));
 
   const doRequest = (l: L) => start(async () => {
     setErr('');
+    if (l.is_sample) { setMsg('This is a sample listing that shows how opportunities appear. Requests open on live, owner-approved profiles. Create a profile to be matched as they are published.'); setReg({ step: 9 }); return; }
     const r = await requestAccess(l.id);
     if (r.ok) { setDone([...done, l.id]); setMsg(`Your access request for “${r.title}” has been sent. The owner is notified and decides whether to share more.`); setReg({ step: 9 }); return; }
     if ('needAuth' in r && r.needAuth) return setReg({ step: 0, target: l });
@@ -40,14 +43,18 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
     setErr(r.error || ''); setMsg(r.error || ''); setReg({ step: 9 });
   });
   const doSave = () => start(async () => {
-    const r = await saveSearch(ind === 'All' ? 'All industries' + (intl ? ' · international' : '') : ind + (intl ? ' · international' : ''), { industry: ind, intl });
-    if (r.ok) setSaved(true); else setReg({ step: 0, afterSave: true });
+    if (!profile) return setReg({ step: 0, afterSave: true });
+    const r = await saveSearch(label, { industry: ind, intl });
+    if (r.ok) setSavedSet([...savedSet, label]); else setReg({ step: 0, afterSave: true });
   });
   const finishProfile = () => start(async () => {
     const r = await saveBuyerProfile({ ...f, international: intl });
-    if (!r.ok) { setReg({ ...reg!, step: 3 }); return; }
+    if (!r.ok) {
+      if ('needAuth' in r && r.needAuth) { setReg({ ...reg!, step: 3 }); return; }
+      setErr('We couldn’t save your profile. Please try again.'); return;
+    }
     setProfile(true);
-    if (reg?.afterSave) { await saveSearch(ind === 'All' ? 'All industries' : ind, { industry: ind, intl }); setSaved(true); }
+    if (reg?.afterSave) { await saveSearch(label, { industry: ind, intl }); setSavedSet([...savedSet, label]); }
     if (reg?.target) {
       const rr = await requestAccess(reg.target.id);
       if (rr.ok) { setDone([...done, reg.target.id]); setMsg(`Your access request for “${rr.title}” has been sent. The owner is notified and decides whether to share more.`); }
@@ -99,7 +106,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
                 </div>
                 <div className="row between" style={{ gap: 12 }}>
                   <span className="xs muted">{l.deal_note}</span>
-                  <button className={'btn btn-sm ' + (req ? 'btn-green' : 'btn-ghost')} disabled={req || p} onClick={() => doRequest(l)}>{req ? 'Requested ✓' : 'Request access'}</button>
+                  <button className={'btn btn-sm ' + (req ? 'btn-green' : 'btn-ghost')} disabled={req || p} onClick={() => doRequest(l)}>{req ? 'Requested ✓' : l.is_sample ? 'Sample only' : 'Request access'}</button>
                 </div>
               </div>
             );
@@ -142,6 +149,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
               </>
             )}
             {step === 3 && <OtpForm role="buyer" submitLabel="Verify & create profile" onDone={() => finishProfile()} />}
+            {err && step < 9 && <span className="err">{err}</span>}
             {step === 9 && (
               <div className="col gap14">
                 <p className="t2" style={{ margin: 0, fontSize: 15 }}>{msg}</p>

@@ -370,3 +370,9 @@ CREATE TABLE IF NOT EXISTS app_config (
   value jsonb NOT NULL,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Accounts can hold several roles; users.role is the active one.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS roles text[] NOT NULL DEFAULT '{}';
+UPDATE users SET roles = ARRAY[role] WHERE roles = '{}';
+CREATE SEQUENCE IF NOT EXISTS invoice_seq START 1001;
+CREATE SEQUENCE IF NOT EXISTS deal_ref_seq START 1001;

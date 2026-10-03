@@ -27,9 +27,11 @@ Succession, transferability and business-transfer platform for owners of establi
 | `DATABASE_URL` | yes | Neon connection string (set by the Vercel Neon integration). Schema + seed apply automatically on build (`scripts/migrate.mjs`) and lazily on first request. |
 | `ADMIN_PASSWORD` | for admin | `/admin` is disabled until set. |
 | `SESSION_SECRET` | recommended | Falls back to a hash of `DATABASE_URL`. |
-| `RESEND_API_KEY` + `OTP_FROM_EMAIL` | before launch | Email OTP delivery. |
-| `MSG91_AUTH_KEY` + `MSG91_TEMPLATE_ID` | before launch | SMS OTP delivery. Without a provider, codes show on screen ("preview delivery"). |
-| `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` | before charging | Without keys, the report unlock runs in labelled test mode (no charge). |
+| `NEXT_PUBLIC_FIREBASE_API_KEY`, `_PROJECT_ID`, `_APP_ID` (+ `_AUTH_DOMAIN`) | before launch | Phone sign-in via Firebase Phone Auth. Add your domains to Firebase authorized domains. |
+| `RESEND_API_KEY` + `OTP_FROM_EMAIL` | optional | Email OTP delivery. |
+| `MSG91_AUTH_KEY` + `MSG91_TEMPLATE_ID` | optional | SMS OTP via MSG91 instead of Firebase. |
+| `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` + `RAZORPAY_WEBHOOK_SECRET` | before charging | Checkout plus webhook reconciliation at `/api/razorpay/webhook`. |
+| `OTP_PREVIEW=1`, `PAYMENTS_TEST_MODE=1` | testing only | Without a provider, production refuses to show codes on screen or unlock free. These flags allow it while testing. Remove before launch. |
 | `ANTHROPIC_API_KEY` (+ `ANTHROPIC_MODEL`) | optional | AI-written interpretation. Never changes scores; falls back to the rules-based summary. |
 | `NEXT_PUBLIC_SITE_URL` | optional | Canonical URL for sitemap/OG. |
 

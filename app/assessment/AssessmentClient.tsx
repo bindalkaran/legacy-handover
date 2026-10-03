@@ -41,6 +41,7 @@ export default function AssessmentClient({ initialAnswers, initialStep, hasDraft
 
   const runFinish = () => start(async () => {
     setErr('');
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; }
     const r = await completeAssessment(latest.current.a, latest.current.step);
     if (!r.ok && 'needAuth' in r && r.needAuth) { setPhase('auth'); window.scrollTo(0, 0); return; }
     if (!r.ok) { setErr((r as any).error || 'Something went wrong. Your answers are saved.'); return; }
@@ -51,13 +52,13 @@ export default function AssessmentClient({ initialAnswers, initialStep, hasDraft
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <style>{`.as-rail{display:flex}.as-compact{display:none}@media(max-width:760px){.as-rail{display:none}.as-compact{display:flex}}`}</style>
+      <style>{`.as-rail{display:flex}.as-compact{display:none}.as-short{display:none}@media(max-width:760px){.as-rail{display:none}.as-compact{display:flex}}@media(max-width:520px){.as-long{display:none}.as-short{display:inline}}`}</style>
       <header style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--paper)', borderBottom: '1px solid var(--ink)' }}>
         <div className="wrap-m row between" style={{ padding: '14px 24px', flexWrap: 'nowrap' }}>
           <Link href="/" className="serif" style={{ fontSize: 20 }}>Legacy <em style={{ color: 'var(--green)' }}>Handover</em></Link>
           <div className="row small muted" style={{ gap: 18, flexWrap: 'nowrap' }}>
             <span className="row" style={{ gap: 7, whiteSpace: 'nowrap' }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: saved === 'error' ? 'var(--warn)' : '#4E8A6E' }} />{saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved' : saved === 'error' ? 'Not saved, retrying on next answer' : 'Autosave on'}</span>
-            <Link href={signedIn ? '/dashboard' : '/'} className="btn btn-ghost btn-sm">Save &amp; exit</Link>
+            <Link href={signedIn ? '/dashboard' : '/'} className="btn btn-ghost btn-sm"><span className="as-long">Save &amp; exit</span><span className="as-short">Save</span></Link>
           </div>
         </div>
         <div style={{ height: 3, background: 'var(--rule-l)' }}><div style={{ height: '100%', width: pct + '%', background: 'var(--green)', transition: 'width .4s ease' }} /></div>

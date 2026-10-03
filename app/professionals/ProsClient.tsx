@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { applyProfessional } from '@/app/actions/public';
 import { invitePro } from '@/app/actions/pros';
 
-export default function ProsClient({ pros, signedIn }: { pros: any[]; signedIn: boolean }) {
+export default function ProsClient({ pros, signedIn, invited }: { pros: any[]; signedIn: boolean; invited: string[] }) {
   const [type, setType] = useState('All');
   const [city, setCity] = useState('All cities');
-  const [inv, setInv] = useState<Record<string, string>>({});
+  const [inv, setInv] = useState<Record<string, string>>(Object.fromEntries(invited.map((id) => [id, 'Introduction requested ✓'])));
+  const [invErr, setInvErr] = useState<Record<string, string>>({});
   const [, start] = useTransition();
   const [state, action, pending] = useActionState(applyProfessional, null as any);
   const types = ['All', 'CA', 'CS', 'Lawyer', 'Valuer', 'M&A advisor', 'Tax advisor', 'Banker', 'Financing'];
@@ -37,9 +38,14 @@ export default function ProsClient({ pros, signedIn }: { pros: any[]; signedIn: 
               {[['Transitions', p.transitions], ['Rating', p.rating ? p.rating + ' ★' : '—'], ['Fees from', p.fees_from]].map(([k, v]) => <div key={k} className="col gap4"><span className="muted">{k}</span><span style={{ fontSize: 15 }}>{v}</span></div>)}
             </div>
             <button className={'btn ' + (inv[p.id] ? 'btn-green' : 'btn-ghost')} disabled={!!inv[p.id]} onClick={() => {
-              if (!signedIn) { window.location.href = '/sign-in?next=/professionals'; return; }
-              start(async () => { const r = await invitePro(p.id); setInv({ ...inv, [p.id]: r.ok ? 'Introduction requested ✓' : r.error || 'Not available' }); });
+              if (!signedIn) { window.location.href = '/sign-in?role=owner&next=/professionals'; return; }
+              start(async () => {
+                const r = await invitePro(p.id);
+                if (r.ok) { setInv((v) => ({ ...v, [p.id]: 'Introduction requested ✓' })); setInvErr((v) => ({ ...v, [p.id]: '' })); }
+                else setInvErr((v) => ({ ...v, [p.id]: r.error || 'Not available' }));
+              });
             }}>{inv[p.id] || 'Invite to my account'}</button>
+            {invErr[p.id] && <span className="err">{invErr[p.id]}{invErr[p.id].includes('assessment') && <> <Link href="/assessment" className="link-u">Start it</Link></>}</span>}
           </div>
         ))}
       </div>

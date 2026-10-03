@@ -86,6 +86,7 @@ img { max-width: 100%; }
 .p-solid { background: var(--green); color: var(--paper); }
 .p-gold { background: var(--gold-t); color: var(--gold); }
 .p-warn { background: var(--warn-t); color: var(--warn); }
+.p-green-l { background: #F1F4EF; color: var(--green); border: 1px solid #C9D3CC; }
 .p-grey { background: #F1EDE5; color: var(--muted); }
 .p-ink { background: var(--ink); color: var(--paper); }
 .p-line { border: 1px solid var(--ink); }

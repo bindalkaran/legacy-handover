@@ -1,7 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { currentUser, destroySession } from '@/lib/auth';
+import { currentUser, destroySession, issueOtp, checkOtp } from '@/lib/auth';
 import { q, one, audit } from '@/lib/db';
+import { firebaseEnabled, verifyFirebasePhone } from '@/lib/firebase';
 
 export async function saveNotif(prefs: Record<string, boolean>) {
   const u = await currentUser();
@@ -31,10 +32,28 @@ export async function saveProfile(fd: FormData) {
   return { ok: true };
 }
 
-export async function deleteAccount(confirmText: string) {
+export async function sendDeleteCode() {
+  const u = await currentUser();
+  if (!u) return { ok: false as const, error: 'Not signed in.' };
+  const id = u.phone || u.email;
+  if (!id) return { ok: false as const, error: 'No verified contact on this account.' };
+  if (u.phone && firebaseEnabled()) return { ok: true as const, to: u.phone, firebase: true as const };
+  const r = await issueOtp(id);
+  if (!r.ok) return r;
+  return { ok: true as const, to: r.identifier, previewCode: r.previewCode };
+}
+
+export async function deleteAccount(code: string, firebaseToken?: string) {
   const u = await currentUser();
   if (!u) return { ok: false, error: 'Not signed in.' };
-  if (confirmText.trim().toUpperCase() !== 'DELETE') return { ok: false, error: 'Type DELETE to confirm.' };
+  const id = u.phone || u.email;
+  if (!id) return { ok: false, error: 'No verified contact on this account.' };
+  if (firebaseToken) {
+    if ((await verifyFirebasePhone(firebaseToken)) !== u.phone) return { ok: false, error: 'We could not verify that code.' };
+  } else {
+    const c = await checkOtp(id, code);
+    if (!c.ok) return c;
+  }
   const active = await one(`SELECT count(*)::int AS c FROM deals d LEFT JOIN businesses b ON b.id = d.business_id WHERE (b.owner_id = $1 OR d.buyer_id = $1) AND d.closed_at IS NULL`, [u.id]);
   if ((active?.c ?? 0) > 0) return { ok: false, error: 'You have an active deal workspace. Deal records must be retained until it is closed or withdrawn; contact us to close it first.' };
   await audit({ actorId: u.id, action: 'Account deleted at owner request', kind: 'Security' });

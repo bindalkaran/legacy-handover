@@ -12,7 +12,7 @@ export async function saveBuyerProfile(f: Record<string, any>) {
     VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9)
     ON CONFLICT (user_id) DO UPDATE SET buyer_type = EXCLUDED.buyer_type, experience = EXCLUDED.experience, capital = EXCLUDED.capital, financing = EXCLUDED.financing, industries = EXCLUDED.industries, involvement = EXCLUDED.involvement, timeline = EXCLUDED.timeline, international = EXCLUDED.international, updated_at = now()`,
     [u.id, pick(f.type, ['Individual entrepreneur', 'Business owner', 'Professional manager', 'Management team', 'Strategic company', 'Family office / investor']), pick(f.exp, ['Under 5 yrs', '5–15 yrs', '15+ yrs']), pick(f.cap, ['Under ₹1 Cr', '₹1–3 Cr', '₹3–10 Cr', '₹10 Cr+']), pick(f.fin, ['No', 'Partly', 'Yes']), JSON.stringify(industries), pick(f.inv, ['Full-time operator', 'Board / oversight', 'Either']), pick(f.when, ['Within 6 months', '6–12 months', '12–24 months']), !!f.international]);
-  if (u.role !== 'buyer') await q(`UPDATE users SET role = 'buyer' WHERE id = $1`, [u.id]);
+  await q(`UPDATE users SET role = 'buyer', roles = CASE WHEN 'buyer' = ANY(roles) THEN roles ELSE array_append(roles, 'buyer') END WHERE id = $1`, [u.id]);
   if (typeof f.name === 'string' && f.name.trim()) await q(`UPDATE users SET name = $2 WHERE id = $1 AND name IS NULL`, [u.id, f.name.trim().slice(0, 80)]);
   await track('buyer_registered', u.id);
   revalidatePath('/acquirer');
@@ -38,6 +38,8 @@ export async function requestAccess(listingId: string, message?: string) {
 export async function saveSearch(label: string, filters: Record<string, unknown>) {
   const u = await currentUser();
   if (!u) return { ok: false, needAuth: true };
+  if (!(await one(`SELECT 1 FROM buyer_profiles WHERE user_id = $1`, [u.id]))) return { ok: false, needProfile: true };
+  if (await one(`SELECT 1 FROM saved_searches WHERE user_id = $1 AND label = $2`, [u.id, label.slice(0, 120)])) return { ok: true };
   await q(`INSERT INTO saved_searches (user_id, label, filters) VALUES ($1,$2,$3::jsonb)`, [u.id, label.slice(0, 120), JSON.stringify(filters)]);
   revalidatePath('/acquirer');
   return { ok: true };

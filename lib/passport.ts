@@ -7,7 +7,7 @@ export const SECTIONS = ['Identity', 'Financial profile', 'Scores', 'Valuation h
 export async function passportData(businessId: string) {
   const b = await one(`SELECT b.*, u.name AS owner_name FROM businesses b JOIN users u ON u.id = b.owner_id WHERE b.id = $1`, [businessId]);
   if (!b) return null;
-  const history = await q(`SELECT transferability, readiness, independence, value_low, value_high, revenue_mid, profit, labels, score_version, created_at FROM scores WHERE business_id = $1 ORDER BY created_at`, [businessId]);
+  const history = await q(`SELECT transferability, readiness, independence, dependency, components, value_low, value_high, revenue_mid, profit, labels, score_version, created_at FROM scores WHERE business_id = $1 ORDER BY created_at`, [businessId]);
   const docs = await q(`SELECT category, count(DISTINCT name)::int AS n FROM documents WHERE business_id = $1 GROUP BY category`, [businessId]);
   const tasks = await one(`SELECT count(*)::int AS total, count(*) FILTER (WHERE status = 'done')::int AS done FROM tasks WHERE business_id = $1`, [businessId]);
   const deal = await one(`SELECT d.*, u.name AS buyer_name FROM deals d JOIN users u ON u.id = d.buyer_id WHERE d.business_id = $1 ORDER BY d.created_at DESC LIMIT 1`, [businessId]);

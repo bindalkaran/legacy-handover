@@ -1,15 +1,20 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { currentUser, token } from '@/lib/auth';
+import { currentUser, token, hasRole } from '@/lib/auth';
 import { q, one, audit } from '@/lib/db';
 
 async function adv() {
   const u = await currentUser();
   if (!u) throw new Error('Sign in required');
+  if (!hasRole(u, 'advisor')) throw new Error('Advisor access only');
   return u;
 }
-async function hasClient(userId: string, businessId: string) {
-  return !!(await one(`SELECT 1 FROM advisor_links WHERE advisor_user_id = $1 AND business_id = $2 AND status = 'active'`, [userId, businessId]));
+/** Active link to this client whose shared scope includes `need` (or any scope at all when `need` is omitted). */
+async function hasClient(userId: string, businessId: string, need?: 'scores' | 'tasks' | 'documents') {
+  const l = await one(`SELECT scope FROM advisor_links WHERE advisor_user_id = $1 AND business_id = $2 AND status = 'active'`, [userId, businessId]);
+  if (!l) return false;
+  const scope: string[] = Array.isArray(l.scope) ? l.scope : [];
+  return need ? scope.includes(need) : scope.length > 0;
 }
 
 export async function inviteClient(name: string, contact: string) {
@@ -24,7 +29,8 @@ export async function inviteClient(name: string, contact: string) {
 
 export async function sendNote(businessId: string, body: string) {
   const u = await adv();
-  if (!(await hasClient(u.id, businessId))) return { ok: false };
+  // Notes are about the client's plan, so the client must have shared their tasks.
+  if (!(await hasClient(u.id, businessId, 'tasks'))) return { ok: false };
   const b = body.trim().slice(0, 2000);
   if (!b) return { ok: false };
   await q(`INSERT INTO notes (business_id, author_id, body) VALUES ($1,$2,$3)`, [businessId, u.id, b]);
@@ -36,7 +42,7 @@ export async function sendNote(businessId: string, body: string) {
 export async function assignToMe(taskId: string) {
   const u = await adv();
   const t = await one(`SELECT business_id, title FROM tasks WHERE id = $1`, [taskId]);
-  if (!t || !(await hasClient(u.id, t.business_id))) return { ok: false };
+  if (!t || !(await hasClient(u.id, t.business_id, 'tasks'))) return { ok: false };
   await q(`UPDATE tasks SET assignee_user_id = $2, assignee = $3 WHERE id = $1`, [taskId, u.id, (u.name || 'Advisor') + (u.firm ? ' · ' + u.firm : '')]);
   await audit({ actorId: u.id, businessId: t.business_id, action: `Advisor took on task: ${t.title}`, kind: 'Advisor' });
   revalidatePath('/advisor');

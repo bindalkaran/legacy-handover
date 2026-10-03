@@ -1,4 +1,5 @@
 'use client';
+import ConfirmButton from '@/components/ConfirmDialog';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toggleTask, setLevel, inviteAdvisor, revokeAdvisor, uploadDocument, deleteDocument, saveListing, withdrawListing, decideRequest, updateBusiness } from '@/app/actions/owner';
@@ -33,7 +34,7 @@ export function TaskList({ tasks, categories, showFilter = true, readonly }: { t
           return (
             <div key={t.id} style={{ borderBottom: '1px solid var(--tint)' }}>
               <div className="grid" style={{ gridTemplateColumns: '28px minmax(0,1fr) auto', gap: 14, alignItems: 'center', padding: '16px 18px' }}>
-                <button aria-label={d ? 'Mark as not done' : 'Mark as done'} disabled={readonly} onClick={() => { setOptimistic({ ...optimistic, [t.id]: !d }); start(async () => { await toggleTask(t.id); router.refresh(); }); }} style={{ width: 24, height: 24, border: '1.5px solid var(--green)', background: d ? 'var(--green)' : 'transparent', color: 'var(--paper)', fontSize: 13, padding: 0 }}>{d ? '✓' : ''}</button>
+                <button aria-label={d ? 'Mark as not done' : 'Mark as done'} disabled={readonly} onClick={() => { setOptimistic({ ...optimistic, [t.id]: !d }); start(async () => { const r = await toggleTask(t.id); if (!r.ok) setOptimistic((o) => { const n = { ...o }; delete n[t.id]; return n; }); router.refresh(); }); }} style={{ width: 24, height: 24, border: '1.5px solid var(--green)', background: d ? 'var(--green)' : 'transparent', color: 'var(--paper)', fontSize: 13, padding: 0 }}>{d ? '✓' : ''}</button>
                 <button onClick={() => setOpen(open === t.id ? null : t.id)} className="col gap4" style={{ background: 'none', border: 0, textAlign: 'left', padding: 0, minWidth: 0 }}>
                   <span style={{ fontSize: 15, color: d ? 'var(--dis)' : 'var(--ink)', textDecoration: d ? 'line-through' : 'none' }}>{t.title}</span>
                   <span className="xs muted">{t.category} · {t.effort} · Due {t.due}</span>
@@ -83,34 +84,43 @@ export function InviteAdvisor() {
 export function RevokeAdvisor({ id }: { id: string }) {
   const [p, start] = useTransition();
   const router = useRouter();
-  return <button className="linkbtn xs" style={{ color: 'var(--warn)' }} disabled={p} onClick={() => { if (confirm('Revoke this advisor’s access?')) start(async () => { await revokeAdvisor(id); router.refresh(); }); }}>Revoke</button>;
+  return <ConfirmButton className="linkbtn xs" style={{ color: 'var(--warn)' }} disabled={p} danger message="Revoke this advisor’s access? They will no longer see your scores, tasks or documents." confirmLabel="Revoke access" onConfirm={() => start(async () => { await revokeAdvisor(id); router.refresh(); })}>Revoke</ConfirmButton>;
 }
 
 export function LevelPicker({ level }: { level: number }) {
   const [p, start] = useTransition();
+  const [ask, setAsk] = useState<number | null>(null);
   const router = useRouter();
+  const apply = (i: number) => start(async () => { await setLevel(i); setAsk(null); router.refresh(); });
   return (
     <div className="col gap8">
       {LEVELS.map((l, i) => (
-        <button key={l[0]} disabled={p} onClick={() => {
-          if (i === level) return;
-          if (i > level && !confirm(`Move to Level ${i} (${l[0]})? ${l[1]}. You can step back down at any time.`)) return;
-          start(async () => { await setLevel(i); router.refresh(); });
-        }} className="grid" style={{ textAlign: 'left', gridTemplateColumns: '44px 1fr', gap: 14, alignItems: 'center', padding: '16px 18px', border: '1.5px solid ' + (level === i ? 'var(--green)' : 'var(--ink)'), background: level === i ? 'var(--green-t2)' : 'var(--card)' }}>
+        <button key={l[0]} disabled={p} onClick={() => { if (i === level) return; if (i > level) setAsk(i); else apply(i); }} className="grid" style={{ textAlign: 'left', gridTemplateColumns: '44px 1fr', gap: 14, alignItems: 'center', padding: '16px 18px', border: '1.5px solid ' + (level === i ? 'var(--green)' : 'var(--ink)'), background: level === i ? 'var(--green-t2)' : 'var(--card)' }}>
           <span className="serif" style={{ fontSize: 22, color: '#A8844C' }}>L{i}</span>
           <span className="col gap4"><span style={{ fontWeight: 600, fontSize: 15 }}>{l[0]}{level === i ? ' · current' : ''}</span><span className="small muted">{l[1]}</span></span>
         </button>
       ))}
+      {ask !== null && (
+        <div role="dialog" aria-modal="true" aria-labelledby="lv-title" style={{ position: 'fixed', inset: 0, background: 'rgba(28,27,25,.45)', display: 'grid', placeItems: 'center', padding: 20, zIndex: 40 }} onClick={(e) => e.target === e.currentTarget && setAsk(null)}>
+          <div className="col gap16" style={{ background: 'var(--card)', border: '1px solid var(--ink)', maxWidth: 460, width: '100%', padding: 28 }}>
+            <span className="eyebrow">Increase visibility</span>
+            <span id="lv-title" className="serif" style={{ fontSize: 26, lineHeight: 1.2 }}>Move to Level {ask} · {LEVELS[ask][0]}?</span>
+            <span className="t2" style={{ fontSize: 14.5 }}>{LEVELS[ask][1]}. You still approve every individual request, and you can step back down at any time.</span>
+            <div className="row gap10"><button className="btn btn-green" disabled={p} onClick={() => apply(ask)}>{p ? 'Saving…' : `Yes, move to Level ${ask}`}</button><button className="btn btn-ghost" onClick={() => setAsk(null)}>Cancel</button></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export function DocUpload({ category }: { category?: string }) {
+export function DocUpload({ category, dealId }: { category?: string; dealId?: string }) {
   const [err, setErr] = useState('');
   const [p, start] = useTransition();
   const router = useRouter();
   return (
     <form className="col gap8" action={(fd) => start(async () => { setErr(''); const r = await uploadDocument(fd); if (!r.ok) setErr(r.error || 'Upload failed.'); else router.refresh(); })}>
+      {dealId && <input type="hidden" name="dealId" value={dealId} />}
       {category ? <input type="hidden" name="category" value={category} /> : (
         <select name="category" className="select" defaultValue="Financial">{DOC_CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select>
       )}
@@ -127,7 +137,7 @@ export function DocUpload({ category }: { category?: string }) {
 export function DeleteDoc({ id }: { id: string }) {
   const [p, start] = useTransition();
   const router = useRouter();
-  return <button className="linkbtn xs" style={{ color: 'var(--warn)' }} disabled={p} onClick={() => { if (confirm('Delete this document? This cannot be undone.')) start(async () => { await deleteDocument(id); router.refresh(); }); }}>Delete</button>;
+  return <ConfirmButton className="linkbtn xs" style={{ color: 'var(--warn)' }} disabled={p} danger message="Delete this document? This cannot be undone." confirmLabel="Delete" onConfirm={() => start(async () => { await deleteDocument(id); router.refresh(); })}>Delete</ConfirmButton>;
 }
 
 export function ListingForm({ listing, defaults }: { listing: any; defaults: { industry: string; years: string; location: string } }) {

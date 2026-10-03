@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { saveNotif, saveRegion, saveProfile, deleteAccount } from '@/app/actions/settings';
+import { saveNotif, saveRegion, saveProfile, deleteAccount, sendDeleteCode } from '@/app/actions/settings';
+import { sendFirebaseCode, firebaseError } from '@/lib/firebase-client';
 
 const NT: [string, string, number[], boolean][] = [['Task reminders', 'Weekly digest of readiness tasks', [1, 1, 0], false], ['New acquirer interest', 'When a qualified acquirer requests access', [1, 1, 1], false], ['Advisor activity', 'Notes, uploads and task updates from advisors', [1, 1, 0], false], ['Deal & NDA updates', 'Offers, signatures, data-room access', [1, 1, 1], true], ['Security alerts', 'New sign-ins, permission changes', [1, 1, 1], true], ['Opportunity alerts', 'Matching businesses (acquirers)', [1, 0, 0], false], ['Guides & product news', 'Monthly, never more', [0, 0, 0], false]];
 
@@ -62,12 +63,36 @@ export function ProfileForm({ u }: { u: any }) {
 
 export function DeleteAccount() {
   const [open, setOpen] = useState(false); const [v, setV] = useState(''); const [err, setErr] = useState('');
+  const [sent, setSent] = useState<null | { to: string; preview?: string; confirm?: (code: string) => Promise<string> }>(null);
   const [p, start] = useTransition();
+  const send = () => start(async () => {
+    setErr('');
+    const r = await sendDeleteCode();
+    if (!r.ok) return setErr(r.error);
+    if ('firebase' in r && r.firebase) {
+      try { setSent({ to: r.to, confirm: await sendFirebaseCode(r.to, 'delete-account') }); } catch (e) { setErr(firebaseError(e)); }
+      return;
+    }
+    setSent({ to: r.to, preview: 'previewCode' in r ? r.previewCode : undefined });
+  });
+  const confirmDelete = () => start(async () => {
+    setErr('');
+    let token: string | undefined;
+    if (sent?.confirm) { try { token = await sent.confirm(v); } catch (e) { return setErr(firebaseError(e)); } }
+    const r = await deleteAccount(v, token);
+    if (r.ok) window.location.href = '/'; else setErr(r.error || '');
+  });
   return (
     <div className="col gap12" style={{ border: '1px solid var(--warn)', padding: '18px 20px' }}>
       <div className="row between"><div className="col gap4"><span style={{ fontSize: 15, color: 'var(--warn)' }}>Delete account and all data</span><span className="small muted">Removes assessments, scores, tasks, documents and passport. Records of active deals are retained as required.</span></div>
-        <button className="btn btn-danger btn-sm" onClick={() => setOpen(!open)}>Delete account</button></div>
-      {open && <div className="row gap8"><input value={v} onChange={(e) => setV(e.target.value)} placeholder="Type DELETE to confirm" className="input" style={{ width: 'auto', flex: 1 }} /><button className="btn btn-danger" disabled={p} onClick={() => start(async () => { const r = await deleteAccount(v); if (r.ok) window.location.href = '/'; else setErr(r.error || ''); })}>Permanently delete</button></div>}
+        <button id="delete-account" className="btn btn-danger btn-sm" onClick={() => { setOpen(!open); if (!open && !sent) send(); }}>Delete account</button></div>
+      {open && sent && (
+        <div className="col gap8">
+          <span className="small t2">We sent a one-time code to {sent.to}. Enter it to confirm. This can&rsquo;t be undone.</span>
+          {sent.preview && <div className="notice">Preview delivery: your code is <b className="tab">{sent.preview}</b>.</div>}
+          <div className="row gap8"><input value={v} onChange={(e) => setV(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6-digit code" inputMode="numeric" className="input tab" style={{ width: 'auto', flex: 1 }} /><button className="btn btn-danger" disabled={p || v.length !== 6} onClick={confirmDelete}>Permanently delete</button></div>
+        </div>
+      )}
       {err && <span className="err">{err}</span>}
     </div>
   );

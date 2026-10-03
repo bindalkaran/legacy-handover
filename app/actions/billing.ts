@@ -13,7 +13,8 @@ export async function startReportPayment(method: string) {
   try {
     const r = await createReportOrder(user.id, biz.id, ['UPI', 'Card', 'Net banking'].includes(method) ? method : 'UPI');
     return { ok: true as const, ...r, name: user.name || '', contact: user.phone || '', email: user.email || '' };
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.message === 'Payments are not configured') return { ok: false as const, error: 'Online payment is opening shortly. Request a call from the home page and we will unlock your report for you.' };
     return { ok: false as const, error: 'Payment could not be started. Nothing was charged. Please try again.' };
   }
 }

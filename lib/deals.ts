@@ -2,14 +2,26 @@ import 'server-only';
 import { q, one } from './db';
 import { advisorBusinessIds } from './owner';
 import type { User } from './auth';
-import { DOC_TARGETS } from './constants';
+import { DOC_TARGETS, CLOSING_KEYS } from './constants';
 
 export type Side = 'owner' | 'buyer' | 'advisor';
+/** 'admin' is a read-only platform view (admin passphrase session). It never reaches server actions. */
+export type ViewSide = Side | 'admin';
+
+async function fetchDeal(id: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  return await one(`SELECT d.*, b.owner_id, b.name AS biz_name, b.city AS biz_city, b.state AS biz_state, b.industry AS biz_industry, l.title AS listing_title, l.location AS listing_location
+    FROM deals d JOIN businesses b ON b.id = d.business_id LEFT JOIN listings l ON l.id = d.listing_id WHERE d.id = $1`, [id]);
+}
+
+/** Read-only load for the admin console. Callers must check isAdmin() first. */
+export async function loadDealForAdmin(id: string) {
+  const deal = await fetchDeal(id);
+  return deal ? { deal, side: 'admin' as const } : null;
+}
 
 export async function loadDeal(id: string, user: User) {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  const deal = await one(`SELECT d.*, b.owner_id, b.name AS biz_name, b.city AS biz_city, b.state AS biz_state, b.industry AS biz_industry, l.title AS listing_title, l.location AS listing_location
-    FROM deals d JOIN businesses b ON b.id = d.business_id LEFT JOIN listings l ON l.id = d.listing_id WHERE d.id = $1`, [id]);
+  const deal = await fetchDeal(id);
   if (!deal) return null;
   let side: Side | null = null;
   if (deal.owner_id === user.id) side = 'owner';
@@ -20,6 +32,18 @@ export async function loadDeal(id: string, user: User) {
 }
 
 export function ndaDone(d: any) { return !!(d.nda_owner_at && d.nda_buyer_at); }
+export function closingComplete(d: any) { const cl = d.closing || {}; return CLOSING_KEYS.every((k) => cl[k]); }
+
+/** Role-aware next step line used in the workspace and on dashboards. */
+export function nextStep(d: any, side: string, nda: boolean) {
+  if (side === 'admin') return 'Read-only view. Actions are taken by the owner and acquirer.';
+  if (!nda) return (side === 'owner' && !d.nda_owner_at) || (side === 'buyer' && !d.nda_buyer_at) ? 'Review and sign the mutual NDA.' : 'Waiting for the other party to sign the NDA.';
+  if (d.closed_at) return 'Work through the 90-day transition checklist together.';
+  if (d.stage < 6) return side === 'buyer' ? 'Review the Level 3 data room and send your questions.' : 'Upload Level 3 documents and answer open questions.';
+  if (d.stage < 7) return side === 'buyer' ? 'Complete diligence and prepare an indicative offer.' : 'Answer diligence questions; consider Level 4 access.';
+  if (d.stage < 9) return 'Negotiate the offer until both sides accept.';
+  return 'Work through the closing conditions with your advisors.';
+}
 
 export async function dealHealth(d: any) {
   const qs = await q(`SELECT created_at, answered_at FROM deal_questions WHERE deal_id = $1`, [d.id]);
@@ -53,7 +77,15 @@ export async function dealHealth(d: any) {
 export const HEALTH_PILL: Record<string, string> = { Healthy: 'p-green', 'Needs attention': 'p-gold', 'At risk': 'p-warn', Stalled: 'p-grey', Closed: 'p-solid' };
 
 /** Deterministic deal assistant: answers computed from records the viewer can access. */
-export async function assistant(d: any, side: Side, key: string) {
+export type AssistantAnswer = { a: string; cites: string[]; ai: boolean };
+
+export async function assistant(d: any, side: Side, key: string): Promise<AssistantAnswer> {
+  const r = await assistantRules(d, side, key);
+  // Every answer below is computed from structured records. Mark ai: true only if a model produced the text.
+  return { ...r, ai: false };
+}
+
+async function assistantRules(d: any, side: Side, key: string): Promise<{ a: string; cites: string[] }> {
   const maxLevel = side === 'buyer' ? d.buyer_max_level : 4;
   const docs = await q(`SELECT category, name, version, level FROM documents WHERE business_id = $1 AND level <= $2 ${side === 'buyer' ? "AND permission <> 'Hidden'" : ''} ORDER BY category, name`, [d.business_id, maxLevel]);
   const cites = (xs: any[]) => xs.slice(0, 3).map((x) => `${x.category} › ${x.name} v${x.version}`);
@@ -74,6 +106,19 @@ export async function assistant(d: any, side: Side, key: string) {
   if (key === 'open') {
     const open = await q(`SELECT question FROM deal_questions WHERE deal_id = $1 AND answer IS NULL ORDER BY created_at`, [d.id]);
     return { a: open.length ? `${open.length} open question${open.length > 1 ? 's' : ''}: ` + open.map((x, i) => `(${i + 1}) ${x.question}`).join(' ') : 'There are no open questions between the parties.', cites: ['Questions & answers'] };
+  }
+  if (key === 'risks') {
+    const counts = Object.fromEntries(Object.keys(DOC_TARGETS).map((c) => [c, docs.filter((x) => x.category === c).length]));
+    const gaps = Object.entries(DOC_TARGETS).filter(([c, t]) => counts[c] < t).map(([c, t]) => `${c} (${counts[c]} of ~${t})`);
+    const h = await dealHealth(d);
+    const weak = h.factors.filter((f) => !f[2]).map((f) => `${f[0]}: ${f[1]}`);
+    const open = await one(`SELECT count(*)::int AS c, count(*) FILTER (WHERE created_at < now() - interval '5 days')::int AS old FROM deal_questions WHERE deal_id = $1 AND answer IS NULL`, [d.id]);
+    const parts: string[] = [];
+    if (gaps.length) parts.push(`Document gaps in categories visible to you: ${gaps.join('; ')}.`);
+    if (weak.length) parts.push(`Deal health factors needing attention: ${weak.join('; ')}.`);
+    if (open?.c) parts.push(`${open.c} question${open.c > 1 ? 's are' : ' is'} still unanswered${open.old ? `, ${open.old} of them for more than 5 days` : ''}.`);
+    if (!ndaDone(d)) parts.push('The mutual NDA is not yet signed by both parties.');
+    return { a: parts.length ? `Areas to look at first. ${parts.join(' ')} This list is built from the document index, deal health and open questions, not from reading document contents.` : 'No index-level risk areas found: the data room has the typical set of documents, health factors are on track and no questions are open. This does not replace diligence on the documents themselves.', cites: ['Data room index', 'Deal health', 'Questions & answers'] };
   }
   return { a: 'Document reading and comparison need an AI provider to be connected. Until then the assistant answers only from structured records (documents index, questions, assessment).', cites: [] };
 }

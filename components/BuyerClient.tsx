@@ -1,18 +1,27 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { requestAccess, setSearchFrequency, deleteSearch } from '@/app/actions/buyer';
 
 export function RequestButton({ id, requested, sample }: { id: string; requested: boolean; sample: boolean }) {
   const [state, setState] = useState(requested);
   const [err, setErr] = useState('');
+  const [needProfile, setNeedProfile] = useState(false);
   const [p, start] = useTransition();
   const router = useRouter();
   return (
     <div className="col gap4" style={{ alignItems: 'flex-end' }}>
-      <button className={'btn btn-sm ' + (state ? '' : 'btn-ghost')} disabled={state || p} onClick={() => start(async () => { const r = await requestAccess(id); if (r.ok) { setState(true); router.refresh(); } else setErr(('error' in r && r.error) || 'Could not request.'); })}>{state ? 'Requested ✓' : 'Request access'}</button>
+      <button className={'btn btn-sm ' + (state ? '' : 'btn-ghost')} disabled={state || p} onClick={() => start(async () => {
+        const r = await requestAccess(id);
+        if (r.ok) { setState(true); router.refresh(); return; }
+        if ('needAuth' in r && r.needAuth) { router.push('/sign-in?role=buyer&next=/acquirer'); return; }
+        if ('needProfile' in r && r.needProfile) { setNeedProfile(true); setErr(''); return; }
+        setErr(('error' in r && r.error) || 'Could not request.');
+      })}>{state ? 'Requested ✓' : 'Request access'}</button>
       {sample && !state && <span className="sample-tag">Sample</span>}
       {err && <span className="err" style={{ maxWidth: 260, textAlign: 'right' }}>{err}</span>}
+      {needProfile && <span className="small" style={{ maxWidth: 260, textAlign: 'right' }}>Owners see your acquirer profile when you request access. <Link href="/acquire" className="link-u">Create your profile</Link> first, then request again.</span>}
     </div>
   );
 }

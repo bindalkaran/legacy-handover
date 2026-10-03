@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
+import ConfirmButton from '@/components/ConfirmDialog';
 import { login, advanceOwner, setVerification, decideListing, setBuyerStage, addContact, moveContact, suppressContact, decideDraft, saveWeights, toggleSamples, setCallback, listProfessional, rejectApplication } from '@/app/actions/admin';
 
 export function LoginForm({ enabled }: { enabled: boolean }) {
@@ -16,7 +17,9 @@ export function LoginForm({ enabled }: { enabled: boolean }) {
 
 function Btn({ onClick, children, cls = 'btn btn-green btn-sm', confirmMsg }: { onClick: () => Promise<any>; children: React.ReactNode; cls?: string; confirmMsg?: string }) {
   const [p, start] = useTransition();
-  return <button className={cls} disabled={p} onClick={() => { if (confirmMsg && !confirm(confirmMsg)) return; start(async () => { await onClick(); }); }}>{children}</button>;
+  const go = () => start(async () => { await onClick(); });
+  if (confirmMsg) return <ConfirmButton className={cls} disabled={p} message={confirmMsg} onConfirm={go}>{children}</ConfirmButton>;
+  return <button className={cls} disabled={p} onClick={go}>{children}</button>;
 }
 
 export const AdvanceOwner = ({ id, label }: { id: string; label: string }) => <Btn onClick={() => advanceOwner(id)}>{label}</Btn>;

@@ -3,6 +3,7 @@ const nextConfig = {
   serverExternalPackages: ['@electric-sql/pglite'],
   experimental: { serverActions: { bodySizeLimit: '4mb' } },
   poweredByHeader: false,
+  turbopack: { root: import.meta.dirname },
   outputFileTracingIncludes: { '/**': ['./db/schema.sql'] },
   async headers() {
     return [{

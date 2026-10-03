@@ -18,7 +18,10 @@ export default async function SharedPassport({ params }: { params: Promise<{ tok
   if (!data) notFound();
   return (
     <div style={{ minHeight: '100vh' }}>
-      <header className="rule-b"><div className="wrap-m row between" style={{ padding: '14px 28px' }}><Wordmark size={22} /><span className="xs muted">Read-only · shared by the owner · watermarked view</span></div></header>
+      <header className="rule-b"><div className="wrap-m row between" style={{ padding: '14px 28px' }}><Wordmark size={22} /><span className="xs muted">Read-only · shared by the owner · every view is logged</span></div></header>
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 50, opacity: 0.06, overflow: 'hidden', display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', gap: '90px 60px', padding: 40, transform: 'rotate(-18deg) scale(1.4)', fontSize: 18, whiteSpace: 'nowrap' }}>
+        {Array.from({ length: 60 }, (_, i) => <span key={i}>Shared link · {s.id.slice(0, 8)} · {new Date().toLocaleDateString('en-IN')}</span>)}
+      </div>
       <main className="wrap-m" style={{ paddingTop: 40, paddingBottom: 96 }}><PassportView data={data} sections={s.sections} /></main>
     </div>
   );

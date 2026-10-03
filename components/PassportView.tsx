@@ -7,9 +7,12 @@ export default function PassportView({ data, sections }: { data: any; sections: 
   const has = (s: string) => sections.includes(s);
   const days = deal?.closed_at ? Math.floor((Date.now() - new Date(deal.closed_at).getTime()) / 864e5) : null;
   const status = deal?.closed_at ? `Transition, day ${Math.min(90, days!)} of 90` : deal ? 'In a deal workspace' : b.lifecycle === 'Assessment' ? 'Preparing' : b.lifecycle;
+  const comp = (k: string) => { const c = (latest?.components || []).find((x: any) => x.k === k); return c ? `${c.s} / 100` : '—'; };
   const blocks: [string, string, [string, string][]][] = [
-    ['Identity', 'Ownership', [['Owner', b.owner_name || 'Owner'], ['Structure', latest?.labels?.structure || '—'], ...(deal?.closed_at ? [['Transferred', fmtDate(deal.closed_at)] as [string, string]] : [])]],
+    ['Identity', 'Ownership', [['Before', `${b.owner_name || 'Owner'} · ${latest?.labels?.structure || 'structure not stated'}`], ['After', deal?.closed_at ? (deal.buyer_name || 'Acquirer') : 'No transfer yet'], ...(deal?.closed_at ? [['Transferred', fmtDate(deal.closed_at)] as [string, string]] : [])]],
     ['Financial profile', 'Financial profile', [['Revenue band', b.revenue_band || '—'], ['Est. EBITDA', latest ? cr(latest.profit) : '—'], ['Employees', b.employees_band || '—']]],
+    ['Scores', 'Operations', [['Owner dependency', latest?.dependency != null ? `${latest.dependency} / 100` : '—'], ['Operations', comp('Operations')], ['Customer concentration', comp('Customer concentration')]]],
+    ['Scores', 'Management', [['Management depth', comp('Management depth')], ['Employee stability', comp('Employee stability')], ['Successor', latest?.labels?.succWho || 'Not identified']]],
     ['Scores', 'Readiness', [['Tasks complete', tasks ? `${tasks.done} of ${tasks.total}` : '—'], ['Transferability', latest ? String(latest.transferability) : '—'], ['Independence', latest ? String(latest.independence) : '—']]],
     ['Valuation history', 'Valuation history', [...history.filter((h: any) => h.value_low).slice(-2).map((h: any) => [fmtDate(h.created_at) + ' indicative', `₹${Number(h.value_low)}–${Number(h.value_high)} Cr`] as [string, string]), ...(offer ? [['Accepted offer', cr(Number(offer.equity) + Number(offer.debt) + Number(offer.seller_financing) + Number(offer.earn_out))] as [string, string]] : [])]],
     ['Documents', 'Documents', [['In data room', String(docTotal)], ['Typical set', String(docTarget)], ['Categories covered', `${docs.length} of 5`]]],
@@ -22,7 +25,7 @@ export default function PassportView({ data, sections }: { data: any; sections: 
           <span className="eyebrow">Succession Passport · digital transfer record</span>
           <h1 className="h1">{has('Identity') ? b.name || 'Your business' : (latest?.labels?.industry || 'Business') + ' business'}</h1>
           <span className="t2" style={{ fontSize: 15 }}>{[b.industry, has('Identity') ? [b.city, b.state].filter(Boolean).join(', ') : b.state, b.years_band ? b.years_band + ' yrs operating' : null, has('Identity') ? b.legal_name : null].filter(Boolean).join(' · ')}</span>
-          <div className="row gap8" style={{ fontSize: 12.5 }}><span className="pill p-solid" style={{ padding: '5px 10px' }}>Status · {status}</span><span className="pill p-line" style={{ padding: '5px 10px' }}>Passport ID LH-P-{String(b.id).slice(0, 6).toUpperCase()}</span><span className="pill p-line" style={{ padding: '5px 10px' }}>Updated {fmtDate(b.updated_at)}</span></div>
+          <div className="row gap8" style={{ fontSize: 12.5 }}>{has('Transition status') && <span className="pill p-solid" style={{ padding: '5px 10px' }}>Status · {status}</span>}<span className="pill p-line" style={{ padding: '5px 10px' }}>Passport ID LH-P-{String(b.id).slice(0, 6).toUpperCase()}</span><span className="pill p-line" style={{ padding: '5px 10px' }}>Updated {fmtDate(b.updated_at)}</span></div>
         </div>
         <div className="photo" style={{ aspectRatio: '16/10' }}><span>The business premises (owner&rsquo;s choice)</span></div>
       </section>

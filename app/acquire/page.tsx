@@ -11,5 +11,6 @@ export default async function Acquire() {
   const user = await currentUser();
   const profile = user ? (await q(`SELECT 1 FROM buyer_profiles WHERE user_id = $1`, [user.id])).length > 0 : false;
   const requested = user ? (await q(`SELECT listing_id FROM access_requests WHERE buyer_id = $1`, [user.id])).map((r) => r.listing_id) : [];
-  return <AcquireClient listings={listings as any} signedIn={!!user} hasProfile={profile} requested={requested} />;
+  const savedLabels = user ? (await q(`SELECT label FROM saved_searches WHERE user_id = $1`, [user.id])).map((r) => r.label as string) : [];
+  return <AcquireClient listings={listings as any} signedIn={!!user} hasProfile={profile} requested={requested} savedLabels={savedLabels} />;
 }

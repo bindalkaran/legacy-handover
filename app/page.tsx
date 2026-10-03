@@ -1,3 +1,4 @@
+import StickyCta from '@/components/StickyCta';
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
@@ -23,8 +24,7 @@ const HOW = [['7 min', 'Answer privately', 'About 40 questions on your role, tea
 export default function Home() {
   return (
     <div style={{ minHeight: '100vh' }}>
-      <style>{`.hero-l{padding:72px 56px 72px 0;border-right:1px solid var(--ink)}@media(max-width:1150px){.hero-l{border-right:0;padding:56px 0}}
-      .sticky-cta{display:none}@media(max-width:700px){.sticky-cta{display:flex}}`}</style>
+      <style>{`.hero-l{padding:72px 56px 72px 0;border-right:1px solid var(--ink)}@media(max-width:1150px){.hero-l{border-right:0;padding:56px 0}}`}</style>
       <SiteHeader />
 
       <section className="wrap grid g-auto-420" style={{ gap: 0, borderBottom: '1px solid var(--ink)', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,520px),1fr))' }}>
@@ -183,10 +183,7 @@ export default function Home() {
       </section>
 
       <SiteFooter />
-      <div className="sticky-cta noprint" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 20, background: 'var(--paper)', borderTop: '1px solid var(--ink)', padding: '10px 16px calc(10px + env(safe-area-inset-bottom))', gap: 10 }}>
-        <Link href="/assessment" className="btn btn-green" style={{ flex: 1 }}>Check my succession readiness</Link>
-        <Link href="#callback" className="btn btn-ghost">Call</Link>
-      </div>
+      <StickyCta />
     </div>
   );
 }
