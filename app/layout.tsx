@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://legacy-handover.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://legacyhandover.com'),
   title: { default: 'Legacy Handover — Plan the handover. Protect the legacy.', template: '%s — Legacy Handover' },
   description: 'A private, seven-minute succession assessment for owners of established Indian businesses. See how transferable your business is and which succession paths fit. No listing. No obligation to sell.',
   openGraph: { type: 'website', siteName: 'Legacy Handover', locale: 'en_IN' },

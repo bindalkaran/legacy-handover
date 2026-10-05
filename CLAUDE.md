@@ -5,7 +5,7 @@ Succession and business-transfer platform for owners of established Indian busin
 ## Stack
 - Next.js 16 App Router, React 19, TypeScript, server actions. No Tailwind: design tokens and utility classes live in `app/globals.css`.
 - Neon Postgres via `@neondatabase/serverless` (HTTP `sql.query`). Local dev uses PGlite: `DATABASE_URL=pglite:./.pglite`.
-- Hosted on Vercel, project `legacy-handover` (prj_Rt8SQQdSA6mb8ay8AGh7qg9tmXcu), region bom1. Push to `main` deploys. Live: https://legacy-handover.vercel.app
+- Hosted on Vercel, project `legacy-handover` (prj_Rt8SQQdSA6mb8ay8AGh7qg9tmXcu), region bom1. Push to `main` deploys. Live: https://legacyhandover.com (domain at Spaceship, A records @ and www to 76.76.21.21; legacy-handover.vercel.app and www redirect to it)
 - Neon is attached through the Vercel Storage integration (sets `DATABASE_URL`).
 
 ## Commands
