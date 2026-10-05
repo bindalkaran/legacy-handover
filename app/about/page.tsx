@@ -23,14 +23,14 @@ export default function About() {
 
         <H>What it does</H>
         <P>About 40 questions produce three scores: <b>Transferability</b> (could the business run under a new owner), <b>Succession Readiness</b> (how prepared you and the business are for a transition) and <b>Business Independence</b> (how well it runs without you). Scores are calculated by fixed, versioned rules, and every score shows its components and weights.</P>
-        <P>The Detailed Report (₹2,999, one time) compares ten paths: preparing first, family succession, management buyout, an external entrepreneur, strategic acquisition, gradual retirement, partial sale, employee ownership, merger and orderly closure. It also gives an indicative value range with the factors behind it, and a prioritised readiness plan you can share with your CA.</P>
+        <P>The Detailed Report, free for now, compares ten paths: preparing first, family succession, management buyout, an external entrepreneur, strategic acquisition, gradual retirement, partial sale, employee ownership, merger and orderly closure. It also gives an indicative value range with the factors behind it, and a prioritised readiness plan you can share with your CA.</P>
         <P>Owners who want to explore a transaction can publish an anonymous profile. Our team reviews every acquirer, owners approve every request, both sides accept an NDA before details are shared, and every view and download is logged.</P>
 
         <H>What it is not</H>
         <P>We are not a listing site, a broker or a registered valuer. Selling is one of ten outcomes and is never the default. Indicative values are estimates, not formal valuations. We work alongside your CA, lawyer and other advisors rather than replacing them; see our <Link className="link-u" href="/terms">terms</Link>.</P>
 
         <H>How we make money</H>
-        <P>The assessment and scores are free. Owners pay ₹2,999 once for the Detailed Report, and the Readiness Program is quoted after a call. We do not sell data, we do not charge acquirers to contact owners, and no money for a sale or investment between owners and acquirers ever passes through the platform.</P>
+        <P>The assessment, scores and Detailed Report are free for now, and the website takes no payments. The Readiness Program is quoted after a call and billed under a written engagement. We do not sell data, we do not charge acquirers to contact owners, and no money for a sale or investment between owners and acquirers ever passes through the platform.</P>
 
         <H>Who runs it</H>
         <P>{COMPANY.brand} is built and operated by {COMPANY.legalName}, a sole proprietorship of {COMPANY.proprietor}, based at {ADDRESS_LINE}. {COMPANY.proprietor} is the founder and the Grievance Officer for personal data.</P>

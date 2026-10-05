@@ -7,11 +7,11 @@ const S = COMPANY.site;
 export function llmsSummary() {
   return `# ${COMPANY.brand}
 
-> Private succession planning for owners of established Indian businesses (typically 10+ years old, ₹1 to 25 crore revenue). A free assessment of about 40 questions gives three rule-based scores; a ₹2,999 Detailed Report compares ten succession paths with an indicative value range and a readiness plan; owners can meet reviewed acquirers confidentially. Operated by ${COMPANY.legalName} (${COMPANY.entity}), ${COMPANY.address.city}, India.
+> Private succession planning for owners of established Indian businesses (typically 10+ years old, ₹1 to 25 crore revenue). A free assessment of about 40 questions gives three rule-based scores; a Detailed Report (free for now) compares ten succession paths with an indicative value range and a readiness plan; owners can meet reviewed acquirers confidentially. Operated by ${COMPANY.legalName} (${COMPANY.entity}), ${COMPANY.address.city}, India.
 
 Key facts:
 - Free assessment: about 40 questions, around 7 minutes. Scores: Transferability, Succession Readiness, Business Independence (0 to 100), calculated by fixed, versioned rules, never by AI.
-- Detailed Report: ₹2,999 one-time, no GST charged (operator not GST-registered), full refund within 7 days, delivered online instantly.
+- Detailed Report: currently free, opens in the owner's account as soon as the assessment is finished. The website takes no payments.
 - Ten paths assessed: prepare first, family succession, management buyout, external entrepreneur, strategic acquisition, gradual retirement, partial sale, employee ownership, merger, orderly closure.
 - Private by default (Level 0). Visibility levels L0 to L4; owners approve every acquirer request; NDA before sensitive details; every view logged.
 - Not a broker, law firm, CA firm, registered valuer or SEBI-registered adviser. Indicative values are not formal valuations.
@@ -21,7 +21,7 @@ Key facts:
 - [Home](${S}/): what the service does, pricing, privacy levels
 - [Free assessment](${S}/assessment)
 - [Sample report](${S}/report/sample): a full example report
-- [Questions answered](${S}/faq): how scores are calculated, pricing, refunds, privacy
+- [Questions answered](${S}/faq): how scores are calculated, what is free, privacy
 - [About](${S}/about): who runs it and how it makes money
 - [Acquire a business](${S}/acquire): confidential profiles for acquirers
 

@@ -11,12 +11,12 @@ export const metadata = {
 export default function Terms() {
   return <LegalPage
     title="Terms of use"
-    intro={<>These terms are an agreement between you and {COMPANY.legalName} ({COMPANY.entity}, &ldquo;we&rdquo;), which operates {COMPANY.brand} at {COMPANY.site}. By creating an account, submitting a form or making a payment, you accept these terms and our <Link className="link-u" href="/privacy">privacy policy</Link>.</>}
+    intro={<>These terms are an agreement between you and {COMPANY.legalName} ({COMPANY.entity}, &ldquo;we&rdquo;), which operates {COMPANY.brand} at {COMPANY.site}. By creating an account or submitting a form, you accept these terms and our <Link className="link-u" href="/privacy">privacy policy</Link>.</>}
     sections={[
       ['Who can use the service', 'You must be at least 18 and able to enter a binding contract under Indian law. If you use the service on behalf of a business, you confirm you are authorised to do so. You are responsible for keeping your phone number current and for activity on your account.'],
       ['What the service is', <>
         <P>{COMPANY.brand} provides:</P>
-        <UL items={['a free succession assessment of about 40 questions, with three scores calculated by fixed, published rules;', 'a paid Detailed Report (₹2,999, one time) covering ten succession paths, an indicative value range with its factors, and a prioritised readiness plan;', 'readiness planning tools, document storage and advisor access;', 'a confidential marketplace where owners can share an anonymous profile with verified acquirers, and deal workspaces for NDAs, questions, offers and closing checklists;', 'a Readiness Program delivered under a separate written engagement and quoted after a call.']} />
+        <UL items={['a free succession assessment of about 40 questions, with three scores calculated by fixed, published rules;', 'a Detailed Report, free for now, covering ten succession paths, an indicative value range with its factors, and a prioritised readiness plan;', 'readiness planning tools, document storage and advisor access;', 'a confidential marketplace where owners can share an anonymous profile with verified acquirers, and deal workspaces for NDAs, questions, offers and closing checklists;', 'a Readiness Program delivered under a separate written engagement and quoted after a call.']} />
       </>],
       ['What we are not', <>
         <P>We are a software platform. We are not a law firm, chartered accountant, registered valuer, stock broker, merchant banker, investment adviser registered with SEBI, lender or business broker, and we do not act as an agent for either side of a transaction. We never collect, hold or transfer money for a sale, purchase or investment between users; the only payments made on the platform are for our own services, such as the Detailed Report. Nothing on the platform is legal, tax, accounting or investment advice.</P>
@@ -32,8 +32,8 @@ export default function Terms() {
         'Offers and stages recorded on the platform are indicative and non-binding. A transaction is legally complete only when the parties sign a definitive agreement outside the platform.'
       ]} />],
       ['Payments', <>
-        <P>Prices are shown in Indian Rupees. The Detailed Report costs ₹2,999, paid once through Razorpay; there is no subscription. {COMPANY.legalName} is not registered under GST, so no GST is charged. Your report unlocks as soon as Razorpay confirms the payment.</P>
-        <P>Refunds are covered by our <Link className="link-u" href="/refund-policy">refund and cancellation policy</Link>. Readiness Program fees, scope and refunds are set out in its written engagement.</P>
+        <P>The assessment, scores and Detailed Report are free at present, and no payment is taken on this website. If we introduce paid features, the price will be shown clearly before you pay and these terms will be updated first.</P>
+        <P>The Readiness Program is quoted after a call. Its fees, scope, payment and refunds are agreed in a written engagement before any work starts. {COMPANY.legalName} is not registered under GST, so no GST is charged.</P>
       </>],
       ['Acceptable use', <UL key="a" items={['Do not misrepresent your identity, your authority, your business or your funds.', 'Do not upload anything unlawful, or anything you do not have the right to share.', 'Do not scrape, copy or resell listings or reports, or try to identify an anonymous business.', 'Do not interfere with the service, other accounts, or its security.']} />],
       ['Intellectual property', `The platform, its scoring methodology, report formats, guides, text and design belong to ${COMPANY.legalName}. Your report is for your own use and for sharing with your family and advisors.`],

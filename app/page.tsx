@@ -18,8 +18,8 @@ const STORIES = [
 
 const PLANS = [
   { name: 'Assessment', tag: 'Start here', price: 'Free', desc: 'See where you stand, privately.', items: ['Full 7-minute assessment', 'Three core scores', 'Strengths and risks'], cta: 'Start free', href: '/assessment', hi: false },
-  { name: 'Detailed Report', tag: 'Most owners choose this', price: '₹2,999', desc: 'Your full picture, explained and shareable with your CA.', items: ['Personalised written report', 'All ten paths analysed', 'Indicative value range with factors', 'Prioritised readiness plan'], cta: 'Start with the assessment', href: '/assessment', hi: true },
-  { name: 'Readiness Program', tag: 'Quoted after a call', price: '₹25k–75k', desc: 'Guided preparation over 12 to 36 months, with your advisors in the loop. Typical range; your quote depends on scope.', items: ['Everything in Report', 'Financial & documentation preparation', 'Advisor coordination', 'Quarterly progress reviews'], cta: 'Request a call', href: '#callback', hi: false }
+  { name: 'Detailed Report', tag: 'Free for now', price: 'Free', desc: 'Your full picture, explained and shareable with your CA. Included with every completed assessment.', items: ['Personalised written report', 'All ten paths analysed', 'Indicative value range with factors', 'Prioritised readiness plan'], cta: 'Start with the assessment', href: '/assessment', hi: true },
+  { name: 'Readiness Program', tag: 'Quoted after a call', price: '₹25k–75k', desc: 'Guided preparation over 12 to 36 months, with your advisors in the loop. Typical range; your quote depends on scope, and it is billed under a written engagement, not on this website.', items: ['Everything in Report', 'Financial & documentation preparation', 'Advisor coordination', 'Quarterly progress reviews'], cta: 'Request a call', href: '#callback', hi: false }
 ];
 
 const HOW = [['7 min', 'Answer privately', 'About 40 questions on your role, team, customers and records. “I don’t know” is a valid answer.'], ['Instant', 'See three scores, with reasons', 'Transferability, Succession Readiness, Business Independence. Calculated by fixed, published rules, never by AI, with every component shown.'], ['Same day', 'Compare ten paths honestly', 'Family, management buyout, external buyer, gradual retirement, preparing first and more. How each fits, and why, in the Detailed Report.'], ['2–5 yrs', 'Prepare at your pace', 'A prioritised plan, a dashboard, and room for your CA and lawyer. Nothing goes public unless you say so.']];
@@ -168,8 +168,8 @@ export default function Home() {
 
       <section id="pricing" className="wrap" style={{ paddingTop: 96, paddingBottom: 96 }}>
         <div className="row between" style={{ alignItems: 'flex-end', marginBottom: 40, gap: 24 }}>
-          <h2 className="h2">Start free. Pay only when it&rsquo;s useful.</h2>
-          <span className="muted" style={{ fontSize: 14 }}>Prices in Indian Rupees · No GST charged</span>
+          <h2 className="h2">The assessment and full report are free.</h2>
+          <span className="muted" style={{ fontSize: 14 }}>No payment is taken on this website</span>
         </div>
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 0, borderTop: '1px solid var(--ink)', borderLeft: '1px solid var(--ink)' }}>
           {PLANS.map((p) => (

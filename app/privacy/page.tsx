@@ -21,12 +21,12 @@ export default function Privacy() {
         <><b>Acquirer profile:</b> capital range, experience, sectors and regions of interest.</>,
         <><b>Deal workspace records:</b> access requests, NDA acceptances, questions and answers, offers, and checklist activity.</>,
         <><b>Callback requests:</b> the name and phone number you enter in the &ldquo;Prefer to talk first?&rdquo; form.</>,
-        <><b>Payment records:</b> amount, status, method type and the payment reference returned by Razorpay. Card, UPI and bank credentials are entered on Razorpay&rsquo;s checkout and never reach our servers.</>,
-        <><b>Activity and security logs:</b> sign-ins, views, downloads and permission changes on your account, and product events such as &ldquo;assessment completed&rdquo;, stored in our own database. We do not use third-party analytics or advertising trackers.</>
+        <><b>Activity and security logs:</b> sign-ins, views, downloads and permission changes on your account, and product events such as &ldquo;assessment completed&rdquo;, stored in our own database. We do not use third-party analytics or advertising trackers.</>,
+        <><b>Payments:</b> the website currently takes no payments, so we collect no payment details. If that changes, we will update this policy first.</>
       ]} />],
       ['Why we use it', <>
         <P>We process personal data on the basis of your consent, which you give when you create an account or submit a form, and for the legitimate uses the DPDP Act allows, such as complying with law. We use it to:</P>
-        <UL items={['sign you in and keep your account secure;', 'calculate your scores and write your report and readiness plan;', 'run the confidential marketplace and deal workspaces you choose to use;', 'process payments and refunds, and keep the records the law requires;', 'reply to callback requests and support messages;', 'prevent fraud and misuse.']} />
+        <UL items={['sign you in and keep your account secure;', 'calculate your scores and write your report and readiness plan;', 'run the confidential marketplace and deal workspaces you choose to use;', 'keep the records the law requires;', 'reply to callback requests and support messages;', 'prevent fraud and misuse.']} />
         <P>Scores are calculated by fixed, versioned rules. We do not use automated systems to make legal or similarly significant decisions about you. We do not sell personal data and we never contact your staff, customers, suppliers or family.</P>
       </>],
       ['Who can see your data', <UL key="w" items={[
@@ -40,8 +40,7 @@ export default function Privacy() {
         <UL items={[
           <><b>Vercel Inc.</b> hosts the website and application.</>,
           <><b>Neon</b> provides the Postgres database where account data and uploaded documents are stored.</>,
-          <><b>Google LLC (Firebase Authentication)</b> sends sign-in codes by SMS and verifies them; it uses Google reCAPTCHA to block automated abuse.</>,
-          <><b>Razorpay Software Private Limited</b> processes payments and refunds.</>
+          <><b>Google LLC (Firebase Authentication)</b> sends sign-in codes by SMS and verifies them; it uses Google reCAPTCHA to block automated abuse.</>
         ]} />
         <P>Some of these providers may process data outside India. We will only transfer data to countries not restricted by the Government of India under section 16 of the DPDP Act. We may also disclose data where required by law, a court order or a government authority.</P>
       </>],
@@ -54,7 +53,6 @@ export default function Privacy() {
         'Account data is kept while your account is open.',
         'When you delete your account in Settings, we delete your assessments, businesses without a deal history, acquirer profile, saved searches and advisor links, and remove your phone, email, name, firm and city from your user record.',
         'Records of a deal workspace are kept while the deal is active and afterwards for as long as the other party’s rights or the law require, so you cannot delete an account with an active deal until it is closed.',
-        'Payment records are kept for the period required by Indian tax and accounting law.',
         'Security and audit logs are kept to protect both sides of a transaction and to answer disputes.'
       ]} />],
       ['Your rights', <>

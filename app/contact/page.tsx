@@ -18,16 +18,12 @@ export default function Contact() {
         <div className="col gap12">
           <span className="eyebrow">Contact</span>
           <h1 className="h1">Talk to us privately.</h1>
-          <p className="t2" style={{ margin: 0, fontSize: 17, lineHeight: 1.6 }}>Questions about the assessment, your report, a payment, or your data. Write, call, or leave your number and we will call you back.</p>
+          <p className="t2" style={{ margin: 0, fontSize: 17, lineHeight: 1.6 }}>Questions about the assessment, your report, or your data. Write, call, or leave your number and we will call you back.</p>
         </div>
         <ContactBlock grievance />
         <section className="col gap12">
           <h2 className="serif" style={{ fontWeight: 400, fontSize: 26, margin: 0 }}>Request a call</h2>
           <CallbackForm />
-        </section>
-        <section className="col gap8">
-          <h2 className="serif" style={{ fontWeight: 400, fontSize: 22, margin: 0 }}>Payments and refunds</h2>
-          <p className="t2" style={{ margin: 0, fontSize: 15.5, lineHeight: 1.7 }}>Include the mobile number on your account and the receipt number (it starts with LH-INV) so we can find your payment quickly. The Detailed Report has a full refund within 7 days of purchase.</p>
         </section>
         <span className="small muted">{COMPANY.brand} is operated by {COMPANY.legalName}, a sole proprietorship of {COMPANY.proprietor}, in {COMPANY.address.city}, {COMPANY.address.state}.</span>
       </main>

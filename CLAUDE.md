@@ -40,7 +40,7 @@ DATABASE_URL=pglite:./.pglite npx next build
 - Writing style for any copy: no em dashes, plain human prose.
 
 ## Environment
-Set on Vercel: `DATABASE_URL` (Neon), `SESSION_SECRET`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_FIREBASE_*` (project `legacy-handover`, Blaze plan, SMS region policy India only), plus the temporary testing flag `PAYMENTS_TEST_MODE=1`.
+Set on Vercel: `DATABASE_URL` (Neon), `SESSION_SECRET`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_FIREBASE_*` (project `legacy-handover`, Blaze plan, SMS region policy India only). The website takes no payments: `REPORT_FREE = true` in `lib/company.ts` makes the Detailed Report free for every owner and blocks checkout.
 Production is locked down by default: without a provider, codes are never shown on screen and the report never unlocks free, unless those two flags are set. Remove `PAYMENTS_TEST_MODE` once Razorpay is live. Email sign-in is hidden in production until `NEXT_PUBLIC_EMAIL_OTP=1` and a Resend key are set.
 Planned providers: Firebase Phone Auth for sign-in (`NEXT_PUBLIC_FIREBASE_*`; client sends the SMS, `lib/firebase.ts` verifies the ID token against Google's keys) and Razorpay (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, webhook at `/api/razorpay/webhook`). Resend/MSG91 remain as optional alternatives. `ANTHROPIC_API_KEY` optional.
 
@@ -49,6 +49,6 @@ Planned providers: Firebase Phone Auth for sign-in (`NEXT_PUBLIC_FIREBASE_*`; cl
 
 ## Open items
 1. Email: hello@legacyhandover.com is received in Zoho Mail Lite (owner to upgrade, then add domain + MX/SPF/DKIM at Spaceship; keep the google-site-verification TXT when adding SPF) and sent through Zoho ZeptoMail (verify domain in ZeptoMail, then set SMTP_HOST=smtp.zeptomail.in, SMTP_PORT=587, SMTP_USER=emailapikey, SMTP_PASS, SMTP_FROM on Vercel).
-2. Razorpay: legacyhandover.com submitted as an additional website on the Bindal Infotech account (live key id rzp_live_RFsmah0cxXz6mG). After approval set RAZORPAY_KEY_ID/SECRET + webhook (`https://legacyhandover.com/api/razorpay/webhook`, RAZORPAY_WEBHOOK_SECRET), then remove `PAYMENTS_TEST_MODE`. A Firebase test phone number exists for the Razorpay reviewer; remove it after approval.
+2. Payments are off (`REPORT_FREE`). Razorpay rejected adding legacyhandover.com to the Bindal Infotech account (business-model deviation) and asked for a separate account. To charge again: open a new Razorpay account, set RAZORPAY_KEY_ID/SECRET + RAZORPAY_WEBHOOK_SECRET (webhook `https://legacyhandover.com/api/razorpay/webhook`), set `REPORT_FREE = false`, and update pricing, FAQ, terms, privacy, refund and delivery copy.
 3. Customer notifications (email/WhatsApp) are not built; the UI only promises dashboard updates.
 4. Documents are base64 in Postgres (4 MB cap); move to object storage when data rooms grow.

@@ -6,7 +6,7 @@ import { faqJsonLd, breadcrumbJsonLd, JsonLd } from '@/lib/seo';
 
 export const metadata = {
   title: 'Questions answered',
-  description: 'How the Legacy Handover succession assessment works, how the three scores are calculated, what the ₹2,999 report includes, refunds, privacy, and the main succession options for Indian family businesses.',
+  description: 'How the Legacy Handover succession assessment works, how the three scores are calculated, what the free Detailed Report includes, privacy, and the main succession options for Indian family businesses.',
   alternates: { canonical: '/faq' }
 };
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { REPORT_FREE } from '@/lib/company';
 import { requireUser, fmtDate } from '@/lib/guard';
 import { q } from '@/lib/db';
 import Wordmark from '@/components/Wordmark';
@@ -7,7 +8,7 @@ import { ProfileForm, DeleteAccount } from './SettingsClient';
 export const metadata = { title: 'Settings', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-const TABS = [['profile', 'Profile'], ['billing', 'Billing & receipts'], ['security', 'Security & data']];
+const TABS = [['profile', 'Profile'], ...(REPORT_FREE ? [] : [['billing', 'Billing & receipts']]), ['security', 'Security & data']];
 const rs = (p: number) => '₹' + (p / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
 export default async function Settings({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {

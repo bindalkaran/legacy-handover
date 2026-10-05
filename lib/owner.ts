@@ -1,4 +1,5 @@
 import 'server-only';
+import { REPORT_FREE } from './company';
 import { cookies } from 'next/headers';
 import { q, one, audit, track, config } from './db';
 import { token, type User } from './auth';
@@ -101,7 +102,7 @@ export async function ownerContext(user: User) {
   const business = await one(`SELECT * FROM businesses WHERE owner_id = $1 ORDER BY created_at LIMIT 1`, [user.id]);
   if (!business) return { business: null, score: null, history: [], paid: false };
   const history = await q(`SELECT * FROM scores WHERE business_id = $1 ORDER BY created_at DESC`, [business.id]);
-  const paid = !!(await one(`SELECT 1 FROM payments WHERE business_id = $1 AND item LIKE 'Detailed Report%' AND status = 'paid'`, [business.id]));
+  const paid = REPORT_FREE || !!(await one(`SELECT 1 FROM payments WHERE business_id = $1 AND item LIKE 'Detailed Report%' AND status = 'paid'`, [business.id]));
   return { business, score: history[0] ?? null, history, paid };
 }
 
