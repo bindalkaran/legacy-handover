@@ -21,7 +21,7 @@ export const COMPANY = {
 export const ADDRESS_LINE = `${COMPANY.address.line1}, ${COMPANY.address.line2}, ${COMPANY.address.city}, ${COMPANY.address.state} ${COMPANY.address.pin}, ${COMPANY.address.country}`;
 export const POLICY_UPDATED = '5 October 2026';
 
-// The Detailed Report is free for now, so the website takes no payments and needs no gateway.
+// The Detailed Report (regular price ₹2,999) is free for a limited time, so the website takes no payments and needs no gateway.
 // Set to false (and add Razorpay keys) to bring back the ₹2,999 paid report; then revisit the
 // pricing copy, FAQ, terms, privacy, refund and delivery pages, which read this flag.
 export const REPORT_FREE = true;

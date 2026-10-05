@@ -7,11 +7,11 @@ const S = COMPANY.site;
 export function llmsSummary() {
   return `# ${COMPANY.brand}
 
-> Private succession planning for owners of established Indian businesses (typically 10+ years old, ₹1 to 25 crore revenue). A free assessment of about 40 questions gives three rule-based scores; a Detailed Report (free for now) compares ten succession paths with an indicative value range and a readiness plan; owners can meet reviewed acquirers confidentially. Operated by ${COMPANY.legalName} (${COMPANY.entity}), ${COMPANY.address.city}, India.
+> Private succession planning for owners of established Indian businesses (typically 10+ years old, ₹1 to 25 crore revenue). A free assessment of about 40 questions gives three rule-based scores; a Detailed Report (₹2,999, free for a limited time) compares ten succession paths with an indicative value range and a readiness plan; owners can meet reviewed acquirers confidentially. Operated by ${COMPANY.legalName} (${COMPANY.entity}), ${COMPANY.address.city}, India.
 
 Key facts:
 - Free assessment: about 40 questions, around 7 minutes. Scores: Transferability, Succession Readiness, Business Independence (0 to 100), calculated by fixed, versioned rules, never by AI.
-- Detailed Report: currently free, opens in the owner's account as soon as the assessment is finished. The website takes no payments.
+- Detailed Report: regular price ₹2,999, free for a limited time; opens in the owner's account as soon as the assessment is finished. The website takes no payments.
 - Ten paths assessed: prepare first, family succession, management buyout, external entrepreneur, strategic acquisition, gradual retirement, partial sale, employee ownership, merger, orderly closure.
 - Private by default (Level 0). Visibility levels L0 to L4; owners approve every acquirer request; NDA before sensitive details; every view logged.
 - Not a broker, law firm, CA firm, registered valuer or SEBI-registered adviser. Indicative values are not formal valuations.

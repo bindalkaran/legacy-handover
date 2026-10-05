@@ -44,7 +44,7 @@ export function offersJsonLd() {
     url: COMPANY.site + '/assessment',
     offers: [
       { '@type': 'Offer', name: 'Succession assessment with three scores', price: '0', priceCurrency: 'INR', url: COMPANY.site + '/assessment' },
-      { '@type': 'Offer', name: 'Detailed Succession Report', price: '0', priceCurrency: 'INR', url: COMPANY.site + '/report/sample', description: 'Free for now. Ten succession paths, indicative value range with factors, prioritised readiness plan.' }
+      { '@type': 'Offer', name: 'Detailed Succession Report', price: '0', priceCurrency: 'INR', url: COMPANY.site + '/report/sample', description: 'Regular price ₹2,999, free for a limited time. Ten succession paths, indicative value range with factors, prioritised readiness plan.' }
     ]
   };
 }

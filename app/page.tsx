@@ -18,7 +18,7 @@ const STORIES = [
 
 const PLANS = [
   { name: 'Assessment', tag: 'Start here', price: 'Free', desc: 'See where you stand, privately.', items: ['Full 7-minute assessment', 'Three core scores', 'Strengths and risks'], cta: 'Start free', href: '/assessment', hi: false },
-  { name: 'Detailed Report', tag: 'Free for now', price: 'Free', desc: 'Your full picture, explained and shareable with your CA. Included with every completed assessment.', items: ['Personalised written report', 'All ten paths analysed', 'Indicative value range with factors', 'Prioritised readiness plan'], cta: 'Start with the assessment', href: '/assessment', hi: true },
+  { name: 'Detailed Report', tag: 'Free for a limited time', price: 'Free', was: '₹2,999', desc: 'Your full picture, explained and shareable with your CA. Included with every completed assessment.', items: ['Personalised written report', 'All ten paths analysed', 'Indicative value range with factors', 'Prioritised readiness plan'], cta: 'Start with the assessment', href: '/assessment', hi: true },
   { name: 'Readiness Program', tag: 'Quoted after a call', price: '₹25k–75k', desc: 'Guided preparation over 12 to 36 months, with your advisors in the loop. Typical range; your quote depends on scope, and it is billed under a written engagement, not on this website.', items: ['Everything in Report', 'Financial & documentation preparation', 'Advisor coordination', 'Quarterly progress reviews'], cta: 'Request a call', href: '#callback', hi: false }
 ];
 
@@ -168,14 +168,14 @@ export default function Home() {
 
       <section id="pricing" className="wrap" style={{ paddingTop: 96, paddingBottom: 96 }}>
         <div className="row between" style={{ alignItems: 'flex-end', marginBottom: 40, gap: 24 }}>
-          <h2 className="h2">The assessment and full report are free.</h2>
-          <span className="muted" style={{ fontSize: 14 }}>No payment is taken on this website</span>
+          <h2 className="h2">The full report is free for a limited time.</h2>
+          <span className="muted" style={{ fontSize: 14 }}>Detailed Report ₹2,999, free for a limited time · No payment is taken on this website</span>
         </div>
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 0, borderTop: '1px solid var(--ink)', borderLeft: '1px solid var(--ink)' }}>
           {PLANS.map((p) => (
             <div key={p.name} className="col gap16" style={{ borderRight: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', padding: 32, background: p.hi ? 'var(--card)' : 'transparent' }}>
               <div className="row between" style={{ alignItems: 'baseline' }}><span className="eyebrow">{p.name}</span><span className="xs muted">{p.tag}</span></div>
-              <span className="big" style={{ fontSize: 44 }}>{p.price}</span>
+              <span className="row" style={{ alignItems: 'baseline', gap: 14 }}>{'was' in p && p.was && <s className="muted" style={{ fontSize: 26 }} aria-label={`Regular price ${p.was}`}>{p.was}</s>}<span className="big" style={{ fontSize: 44 }}>{p.price}</span></span>
               <span className="t2" style={{ fontSize: 15 }}>{p.desc}</span>
               <div className="col gap8 rule-tl" style={{ flex: 1, paddingTop: 16 }}>
                 {p.items.map((i) => <span key={i} className="row" style={{ fontSize: 14.5, gap: 10, flexWrap: 'nowrap' }}><span style={{ color: 'var(--gold)' }}>—</span>{i}</span>)}
