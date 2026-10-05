@@ -48,7 +48,7 @@ Planned providers: Firebase Phone Auth for sign-in (`NEXT_PUBLIC_FIREBASE_*`; cl
 `users.role` is the active workspace; `users.roles` holds every role the account has. Check access with `hasRole(user, ...)`. The sign-in tab only changes the active role when the person picked it (or arrived with `?role=`).
 
 ## Open items
-1. hello@legacyhandover.com: Zoho Mail upgrade (owner), then add domain + MX/SPF/DKIM at Spaceship and the alias; then set SMTP_* on Vercel for operator alerts.
-2. Add Razorpay keys + webhook (`https://legacyhandover.com/api/razorpay/webhook`), then remove `PAYMENTS_TEST_MODE`.
+1. Email: hello@legacyhandover.com is received in Zoho Mail Lite (owner to upgrade, then add domain + MX/SPF/DKIM at Spaceship; keep the google-site-verification TXT when adding SPF) and sent through Zoho ZeptoMail (verify domain in ZeptoMail, then set SMTP_HOST=smtp.zeptomail.in, SMTP_PORT=587, SMTP_USER=emailapikey, SMTP_PASS, SMTP_FROM on Vercel).
+2. Razorpay: legacyhandover.com submitted as an additional website on the Bindal Infotech account (live key id rzp_live_RFsmah0cxXz6mG). After approval set RAZORPAY_KEY_ID/SECRET + webhook (`https://legacyhandover.com/api/razorpay/webhook`, RAZORPAY_WEBHOOK_SECRET), then remove `PAYMENTS_TEST_MODE`. A Firebase test phone number exists for the Razorpay reviewer; remove it after approval.
 3. Customer notifications (email/WhatsApp) are not built; the UI only promises dashboard updates.
 4. Documents are base64 in Postgres (4 MB cap); move to object storage when data rooms grow.

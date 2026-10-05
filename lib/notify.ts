@@ -2,16 +2,18 @@ import 'server-only';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { COMPANY } from './company';
 
-// Operator alerts by email. Off until SMTP_HOST, SMTP_USER and SMTP_PASS are set
-// (Zoho: smtp.zoho.in, port 465, an app-specific password). Never throws: an alert
-// failing must not break the user's action.
+// Operator alerts by email, sent through Zoho ZeptoMail (SMTP). Off until SMTP_HOST,
+// SMTP_USER and SMTP_PASS are set: for ZeptoMail India that is SMTP_HOST=smtp.zeptomail.in,
+// SMTP_PORT=587, SMTP_USER=emailapikey, SMTP_PASS=<Send Mail token>, SMTP_FROM=hello@legacyhandover.com
+// (the sending domain must be verified in ZeptoMail). Alerts arrive at ALERT_TO, default
+// hello@legacyhandover.com (received in Zoho Mail Lite). Never throws.
 let transport: Transporter | null | undefined;
 
 function getTransport() {
   if (transport !== undefined) return transport;
   const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env;
   transport = SMTP_HOST && SMTP_USER && SMTP_PASS
-    ? nodemailer.createTransport({ host: SMTP_HOST, port: Number(process.env.SMTP_PORT || 465), secure: Number(process.env.SMTP_PORT || 465) === 465, auth: { user: SMTP_USER, pass: SMTP_PASS } })
+    ? nodemailer.createTransport({ host: SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT || 587) === 465, auth: { user: SMTP_USER, pass: SMTP_PASS } })
     : null;
   return transport;
 }
