@@ -30,7 +30,7 @@ export default function About() {
         <P>We are not a listing site, a broker or a registered valuer. Selling is one of ten outcomes and is never the default. Indicative values are estimates, not formal valuations. We work alongside your CA, lawyer and other advisors rather than replacing them; see our <Link className="link-u" href="/terms">terms</Link>.</P>
 
         <H>How we make money</H>
-        <P>The assessment and scores are free. Owners pay ₹2,999 once for the Detailed Report, and the Readiness Program is quoted after a call. We do not sell data, and we do not charge acquirers to contact owners.</P>
+        <P>The assessment and scores are free. Owners pay ₹2,999 once for the Detailed Report, and the Readiness Program is quoted after a call. We do not sell data, we do not charge acquirers to contact owners, and no money for a sale or investment between owners and acquirers ever passes through the platform.</P>
 
         <H>Who runs it</H>
         <P>{COMPANY.brand} is built and operated by {COMPANY.legalName}, a sole proprietorship of {COMPANY.proprietor}, based at {ADDRESS_LINE}. {COMPANY.proprietor} is the founder and the Grievance Officer for personal data.</P>
