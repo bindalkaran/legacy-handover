@@ -3,7 +3,7 @@ import { currentUser, hasRole } from '@/lib/auth';
 import SiteHeader from '@/components/SiteHeader';
 import ProsClient from './ProsClient';
 
-export const metadata = { title: 'Professional directory', description: 'CAs, lawyers, valuers and lenders who do succession work for owner-led Indian businesses.' };
+export const metadata = { title: 'Professional directory', description: 'Chartered accountants, lawyers, valuers and other professionals who help owner-led Indian businesses with succession and transfers. Professionals can apply to be listed.', alternates: { canonical: '/professionals' } };
 export const dynamic = 'force-dynamic';
 
 export default async function Professionals() {

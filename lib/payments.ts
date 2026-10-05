@@ -1,9 +1,10 @@
 import 'server-only';
+import { alertOperator } from './notify';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { q, one, audit, track } from './db';
 
-export const REPORT_PRICE_PAISE = 299900; // ₹2,999 incl. GST
-export const GST_RATE = 0.18;
+// ₹2,999 is the full price. Bindal Infotech is not GST-registered, so no GST is charged or shown.
+export const REPORT_PRICE_PAISE = 299900;
 
 export function razorpayEnabled() {
   return !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
@@ -19,9 +20,7 @@ export function paymentMode(): PaymentMode {
   return razorpayEnabled() ? 'razorpay' : testPaymentsAllowed() ? 'test' : 'unavailable';
 }
 
-function gstFromInclusive(paise: number) {
-  return Math.round(paise - paise / (1 + GST_RATE));
-}
+const NO_GST = 0;
 
 async function nextInvoiceNo() {
   const r = await one(`SELECT nextval('invoice_seq')::int AS n`);
@@ -34,7 +33,7 @@ export async function createReportOrder(userId: string, businessId: string, meth
   if (mode === 'unavailable') throw new Error('Payments are not configured');
   if (mode === 'test') {
     const p = await one(`INSERT INTO payments (user_id, business_id, invoice_no, item, amount_paise, gst_paise, method, provider, status) VALUES ($1,$2,$3,'Detailed Report',$4,$5,$6,'test','paid') RETURNING *`,
-      [userId, businessId, invoice, REPORT_PRICE_PAISE, gstFromInclusive(REPORT_PRICE_PAISE), method]);
+      [userId, businessId, invoice, REPORT_PRICE_PAISE, NO_GST, method]);
     await audit({ actorId: userId, businessId, action: 'Detailed report unlocked (test mode, no charge)', kind: 'Billing' });
     await track('report_paid', userId, { provider: 'test' });
     return { mode: 'test' as const, paymentId: p!.id };
@@ -47,7 +46,7 @@ export async function createReportOrder(userId: string, businessId: string, meth
   if (!r.ok) throw new Error('Could not create payment order');
   const order = await r.json();
   await q(`INSERT INTO payments (user_id, business_id, invoice_no, item, amount_paise, gst_paise, method, provider, provider_order_id, status) VALUES ($1,$2,$3,'Detailed Report',$4,$5,$6,'razorpay',$7,'created')`,
-    [userId, businessId, invoice, REPORT_PRICE_PAISE, gstFromInclusive(REPORT_PRICE_PAISE), method, order.id]);
+    [userId, businessId, invoice, REPORT_PRICE_PAISE, NO_GST, method, order.id]);
   return { mode: 'razorpay' as const, orderId: order.id as string, keyId: process.env.RAZORPAY_KEY_ID!, amount: REPORT_PRICE_PAISE };
 }
 
@@ -56,6 +55,7 @@ async function markPaid(orderId: string, paymentId: string, userId?: string) {
   if (!p) return !!(await one(`SELECT 1 FROM payments WHERE provider_order_id = $1 AND status = 'paid'`, [orderId]));
   await audit({ actorId: p.user_id, businessId: p.business_id, action: 'Detailed report purchased', kind: 'Billing', detail: { invoice: p.invoice_no } });
   await track('report_paid', p.user_id, { provider: 'razorpay' });
+  await alertOperator('Payment received: Detailed Report', [`Receipt: ${p.invoice_no}`, `Amount: ₹${(p.amount_paise / 100).toFixed(2)}`, `Razorpay payment: ${paymentId}`]);
   return true;
 }
 

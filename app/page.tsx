@@ -4,22 +4,25 @@ import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import Photo from '@/components/Photo';
 import CallbackForm from '@/components/CallbackForm';
+import { offersJsonLd, JsonLd } from '@/lib/seo';
+
+export const metadata = { alternates: { canonical: '/' } };
 
 const LEVELS = [['0', 'Private', 'Only you and advisors you invite', 'Default'], ['1', 'Anonymous', 'General details, no name, no location', 'You approve'], ['2', 'Verified buyer', 'More detail for qualified buyers only', 'You approve'], ['3', 'Under NDA', 'Sensitive information after a signed NDA', 'You approve'], ['4', 'Due diligence', 'Full data room, logged and revocable', 'You approve']];
 
 const STORIES = [
-  { img: '/images/story-family.jpg', ph: 'A father and daughter walking through the factory gate', path: 'Family succession', q: 'A daughter agrees to take over once she sees a dated plan. The scores give the family something to discuss that isn’t emotion.', who: 'Illustrative example · textile processing' },
-  { img: '/images/story-mbo.jpg', ph: 'An operations manager on the shop floor with his team', path: 'Management buyout', q: 'Independence starts at 41. Eighteen months of delegation later it reads 68, and the operations head is ready to buy in.', who: 'Illustrative example · auto components' },
-  { img: '/images/story-prepare.jpg', ph: 'An owner at his desk, reading old ledgers', path: 'Prepare first', q: 'An owner ready to sell learns weak records would cost a third of the value, and fixes the records first.', who: 'Illustrative example · agri wholesale' }
+  { img: '/images/story-family.jpg', ph: 'A father and daughter walking through the factory gate', path: 'Family succession', q: 'A daughter is open to taking over but wants to know what she is inheriting. A dated plan and three scores give the family something to discuss besides feelings.', who: 'Example scenario' },
+  { img: '/images/story-mbo.jpg', ph: 'An operations manager on the shop floor with his team', path: 'Management buyout', q: 'The operations head could run the business, but every key customer still calls the owner. The plan moves those relationships first, and the Independence score shows the progress.', who: 'Example scenario' },
+  { img: '/images/story-prepare.jpg', ph: 'An owner at his desk, reading old ledgers', path: 'Prepare first', q: 'An owner thinking of selling sees that unreconciled books and unsigned contracts would weaken any offer, so the first year goes into fixing them.', who: 'Example scenario' }
 ];
 
 const PLANS = [
   { name: 'Assessment', tag: 'Start here', price: 'Free', desc: 'See where you stand, privately.', items: ['Full 7-minute assessment', 'Three core scores', 'Strengths and risks'], cta: 'Start free', href: '/assessment', hi: false },
   { name: 'Detailed Report', tag: 'Most owners choose this', price: '₹2,999', desc: 'Your full picture, explained and shareable with your CA.', items: ['Personalised written report', 'All ten paths analysed', 'Indicative value range with factors', 'Prioritised readiness plan'], cta: 'Start with the assessment', href: '/assessment', hi: true },
-  { name: 'Readiness Program', tag: '12–36 months', price: '₹25k–75k', desc: 'Guided preparation with your advisors in the loop.', items: ['Everything in Report', 'Financial & documentation preparation', 'Advisor coordination', 'Quarterly progress reviews'], cta: 'Request a call', href: '#callback', hi: false }
+  { name: 'Readiness Program', tag: 'Quoted after a call', price: '₹25k–75k', desc: 'Guided preparation over 12 to 36 months, with your advisors in the loop. Typical range; your quote depends on scope.', items: ['Everything in Report', 'Financial & documentation preparation', 'Advisor coordination', 'Quarterly progress reviews'], cta: 'Request a call', href: '#callback', hi: false }
 ];
 
-const HOW = [['7 min', 'Answer privately', 'About 40 questions on your role, team, customers and records. “I don’t know” is a valid answer.'], ['Instant', 'See three scores, with reasons', 'Transferability, Succession Readiness, Business Independence. Calculated by transparent rules. AI can explain them; it never sets them.'], ['Same day', 'Compare ten paths honestly', 'Family, management buyout, external buyer, gradual retirement or preparing first. How each fits, and why.'], ['2–5 yrs', 'Prepare at your pace', 'A prioritised plan, a dashboard, and room for your CA and lawyer. Nothing goes public unless you say so.']];
+const HOW = [['7 min', 'Answer privately', 'About 40 questions on your role, team, customers and records. “I don’t know” is a valid answer.'], ['Instant', 'See three scores, with reasons', 'Transferability, Succession Readiness, Business Independence. Calculated by fixed, published rules, never by AI, with every component shown.'], ['Same day', 'Compare ten paths honestly', 'Family, management buyout, external buyer, gradual retirement, preparing first and more. How each fits, and why, in the Detailed Report.'], ['2–5 yrs', 'Prepare at your pace', 'A prioritised plan, a dashboard, and room for your CA and lawyer. Nothing goes public unless you say so.']];
 
 export default function Home() {
   return (
@@ -30,6 +33,7 @@ export default function Home() {
       .hero-cap{padding:20px 0 20px 32px}
       .pos-cell{padding:28px 32px 28px 0}.pos-next{padding-left:32px;border-left:1px solid var(--rule-l)}
       @media(max-width:760px){.pos-cell,.pos-next{padding:24px 0;border-left:0}.pos-next{border-top:1px solid var(--rule-l)}}`}</style>
+      <JsonLd data={offersJsonLd()} />
       <SiteHeader />
 
       <section className="wrap grid g-auto-420" style={{ gap: 0, borderBottom: '1px solid var(--ink)', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,520px),1fr))' }}>
@@ -118,6 +122,11 @@ export default function Home() {
       </section>
 
       <section id="stories" className="rule-t rule-b">
+        <div className="wrap col gap8" style={{ paddingTop: 56 }}>
+          <span className="eyebrow">How it plays out</span>
+          <h2 className="h2" style={{ margin: 0 }}>Three common situations.</h2>
+          <span className="small muted">Composite examples to show how the assessment is used, not stories of specific clients. Photos are illustrative.</span>
+        </div>
         <div className="wrap grid g-auto-300" style={{ columnGap: 32 }}>
           {STORIES.map((s) => (
             <div key={s.path} className="col gap20" style={{ padding: '48px 0' }}>
@@ -135,7 +144,7 @@ export default function Home() {
           <span className="eyebrow">A note from the founder</span>
           <p className="serif" style={{ fontWeight: 300, fontSize: 'clamp(22px,2.4vw,30px)', lineHeight: 1.35, margin: 0 }}>Too many valuable family businesses close not because they lack value, but because nobody planned how they would run without the founder, and nobody knew who to ask.</p>
           <p className="t2" style={{ fontSize: 16, margin: 0 }}>Legacy Handover exists so that conversation starts years earlier, privately, with numbers instead of anxiety. We are not a listing site. Selling is one of ten outcomes, and &ldquo;not yet&rdquo; is a perfectly good answer. Our job is to make sure that whatever you choose, the business and the people in it are ready.</p>
-          <span className="serif" style={{ fontStyle: 'italic', fontSize: 18 }}>Founder, Legacy Handover</span>
+          <span className="serif" style={{ fontStyle: 'italic', fontSize: 18 }}>Karan Bindal, Founder</span>
         </div>
       </section>
 
@@ -160,7 +169,7 @@ export default function Home() {
       <section id="pricing" className="wrap" style={{ paddingTop: 96, paddingBottom: 96 }}>
         <div className="row between" style={{ alignItems: 'flex-end', marginBottom: 40, gap: 24 }}>
           <h2 className="h2">Start free. Pay only when it&rsquo;s useful.</h2>
-          <span className="muted" style={{ fontSize: 14 }}>Prices indicative · GST included where stated</span>
+          <span className="muted" style={{ fontSize: 14 }}>Prices in Indian Rupees · No GST charged</span>
         </div>
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 0, borderTop: '1px solid var(--ink)', borderLeft: '1px solid var(--ink)' }}>
           {PLANS.map((p) => (

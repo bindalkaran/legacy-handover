@@ -3,7 +3,7 @@ import { getDraft } from '@/lib/owner';
 import { one } from '@/lib/db';
 import AssessmentClient from './AssessmentClient';
 
-export const metadata = { title: 'Succession Assessment', description: 'Seven minutes. Entirely private. No decisions required.' };
+export const metadata = { title: 'Free succession assessment', description: 'Answer about 40 private questions in around seven minutes and get three scores: Transferability, Succession Readiness and Business Independence. Free, no listing, no obligation.', alternates: { canonical: '/assessment' } };
 export const dynamic = 'force-dynamic';
 
 export default async function AssessmentPage({ searchParams }: { searchParams: Promise<{ retake?: string; invite?: string }> }) {

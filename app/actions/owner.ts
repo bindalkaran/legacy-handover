@@ -1,4 +1,5 @@
 'use server';
+import { alertOperator } from '@/lib/notify';
 import { revalidatePath } from 'next/cache';
 import { currentUser } from '@/lib/auth';
 import { q, one, audit, track } from '@/lib/db';
@@ -145,7 +146,10 @@ export async function saveListing(fd: FormData, submit: boolean) {
       status = CASE WHEN listings.status = 'published' AND NOT $13 THEN 'published' ELSE EXCLUDED.status END, updated_at = now()`,
     [b.id, fields.industry, fields.title, fields.description, b.revenue_band, fields.location, fields.years, tb, fields.deal_note, b.verification, fields.intl, status, submit]);
   await audit({ actorId: u.id, businessId: b.id, action: submit ? 'Anonymous profile submitted for review' : 'Anonymous profile saved', kind: 'Profile' });
-  if (submit) await track('business_profile_started', u.id);
+  if (submit) {
+    await track('business_profile_started', u.id);
+    await alertOperator('Anonymous profile submitted for review', [`Title: ${fields.title}`, `Industry: ${fields.industry}`, `Location: ${fields.location}`]);
+  }
   revalidatePath('/dashboard');
   if (needsLevel) return { ok: false, error: 'Saved as a draft. Move your visibility to Level 1 (Anonymous) in Privacy & sharing, then submit for review.' };
   return { ok: true };

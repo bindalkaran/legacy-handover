@@ -1,0 +1,34 @@
+// Every answer here is checked against the code (lib/assessment.ts compute(), lib/report.ts paths,
+// lib/payments.ts, the policies). Update this file whenever those change.
+export type QA = { q: string; a: string };
+
+export const FAQ: { group: string; items: QA[] }[] = [
+  { group: 'The assessment', items: [
+    { q: 'What is Legacy Handover?', a: 'Legacy Handover is a private succession planning platform for owners of established Indian businesses. A free assessment of about 40 questions gives three scores that show how ready the business is to pass to someone else. A paid Detailed Report compares ten succession paths, gives an indicative value range and a readiness plan. Owners who want to explore a transaction can meet reviewed acquirers confidentially. It is operated by Bindal Infotech, Jaipur.' },
+    { q: 'Who is it for?', a: 'Owners of established, owner-led Indian businesses, typically ten or more years old with ₹1 to 25 crore in annual revenue, who want to plan what happens when they step back, whether that means family, management, a buyer, or simply getting ready.' },
+    { q: 'Is the assessment free, and how long does it take?', a: 'Yes. The assessment and its three scores are free. It has about 40 multiple-choice questions and takes around seven minutes. “I don’t know” is an accepted answer, and your progress saves as you go.' },
+    { q: 'What do the three scores mean?', a: 'Transferability (0 to 100) shows whether the business could operate under a new owner. Succession Readiness shows how prepared you and the business are for an actual transition. Business Independence shows how well the business runs without you.' },
+    { q: 'How are the scores calculated?', a: 'By fixed, versioned rules, not by AI. Transferability is a weighted average of nine components: financial quality 20%, management depth 15%, owner independence 15%, customer concentration 10%, documentation 10%, operations 10%, legal readiness 10%, revenue quality 5% and employee stability 5%. Succession Readiness combines owner readiness and successor readiness (20% each) with financial quality, legal readiness, documentation and management depth (15% each). Business Independence combines how little the business depends on you (60%), management depth (25%) and operations (15%). Your report shows every component.' },
+    { q: 'Do I have to sell my business to use it?', a: 'No. Selling is one of ten outcomes and is never the default. Many owners use the assessment to plan family succession, a management buyout, gradual retirement, or simply to prepare.' }
+  ] },
+  { group: 'The Detailed Report', items: [
+    { q: 'What is in the ₹2,999 Detailed Report?', a: 'A written report that assesses all ten succession paths (preparing first, family succession, management buyout, external entrepreneur, strategic acquisition, gradual retirement, partial sale, employee ownership, merger and orderly closure) with the fit and reasons for each, an indicative enterprise value range with the factors behind it, a phased timeline from 36 months before a handover to the first 90 days after it, and a prioritised readiness plan you can share with your CA.' },
+    { q: 'Is the indicative value a valuation?', a: 'No. It is an estimate from your answers: estimated profit from your revenue and margin bands, multiplied by a range that rises with your Transferability score. It is not a formal valuation under the Companies Act or any other law and should not be used for a transaction, tax filing or loan. Engage a registered valuer when you need one.' },
+    { q: 'Is GST charged?', a: 'No. Bindal Infotech, which operates Legacy Handover, is not registered under GST, so ₹2,999 is the full price and you receive a payment receipt.' },
+    { q: 'Can I get a refund?', a: 'Yes. Ask within 7 days of payment for a full refund, no reason needed. Email hello@legacyhandover.com with your mobile number and receipt number. Refunds are initiated within 5 working days and returned to the original payment method.' },
+    { q: 'How is the report delivered?', a: 'Online, in your account, as soon as the payment is confirmed. You can download it as a PDF. Nothing is shipped.' }
+  ] },
+  { group: 'Privacy and confidentiality', items: [
+    { q: 'Will my staff, customers or competitors find out?', a: 'Not unless you decide. Every account starts at visibility Level 0, where only you and advisors you invite can see anything. We never contact your staff, customers, suppliers or family.' },
+    { q: 'How do acquirers see my business?', a: 'Only if you choose. You move to Level 1, write an anonymous profile that leaves out your business name, exact address and customer names (acquirers see an anonymised title and description, industry, state, revenue band, years operating and a transferability band), and our team reviews it. Acquirers then see the anonymous profile and can request access; you approve each request. Sensitive details follow only after both sides accept an NDA, and you control data-room access. Every view and download is logged.' },
+    { q: 'Can my CA or lawyer see my report?', a: 'Yes, if you invite them from your dashboard. Advisors see your scores, tasks and documents, and you can revoke their access at any time.' },
+    { q: 'How do I delete my data?', a: 'From Settings you can download everything and delete your account, confirmed with a one-time code. Records of an active deal are kept until it is closed, because the other party has rights in them.' }
+  ] },
+  { group: 'Succession in India', items: [
+    { q: 'What are the main succession options for an Indian family business?', a: 'The ten paths Legacy Handover assesses are: preparing the business first, family succession, a management buyout, bringing in an external entrepreneur or operator, sale to a strategic acquirer, gradual retirement, a partial sale, employee ownership, a merger, and an orderly closure. Which fit depends on whether there is a willing and capable successor, how dependent the business is on the owner, and how clean the records are.' },
+    { q: 'How long does a business succession take?', a: 'Plan for years, not months. Moving key customer, supplier and banking relationships from the owner to others usually takes two to three years, and a management buyout often needs 12 to 24 months of preparation first. Starting early keeps more options open.' },
+    { q: 'What usually reduces what a buyer will pay?', a: 'Heavy dependence on the owner, a few customers making up most of the revenue, unreconciled books and GST filings, missing contracts and agreements, and no second line of management. These are the same areas the assessment scores, so the readiness plan targets them first.' }
+  ] }
+];
+
+export const FAQ_FLAT: QA[] = FAQ.flatMap((g) => g.items);

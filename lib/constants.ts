@@ -12,7 +12,7 @@ export const TRANSITION_KEYS: string[] = [...TRANSITION_PHASES.flatMap(([ph, ite
 export const CLOSING_KEYS: string[] = CLOSING_ITEMS.map((_, i) => String(i));
 export const SELLER_INSTALMENTS = 20;
 // Labels for automated output. Use the AI wording only when a model actually produced the text.
-export const AI_OBS_LABEL = 'AI-generated observation — verify with a qualified professional.';
+export const AI_OBS_LABEL = 'AI-generated observation. Verify with a qualified professional.';
 export const RULES_OBS_LABEL = 'Rules-based observation from the document index. Verify with a qualified professional.';
 export const AI_ASSIST_LABEL = 'AI-generated. Verify with a qualified professional. The assistant is not a lawyer, CA, valuer or investment advisor.';
 export const RULES_ASSIST_LABEL = 'Rules-based answer from deal records, not an AI model. Verify with a qualified professional. The assistant is not a lawyer, CA, valuer or investment advisor.';

@@ -6,7 +6,7 @@ import { matchScore } from '@/lib/matching';
 import { dealHealth, HEALTH_PILL } from '@/lib/deals';
 import { DEAL_STAGES } from '@/lib/constants';
 import { logout } from '@/app/actions/admin';
-import { LoginForm, AdvanceOwner, ListingDecision, BuyerStage, Verification, ContactForm, MoveContact, DraftCard, Weights, SamplesToggle, CallbackDone, AppDecision } from './AdminClient';
+import { LoginForm, AdvanceOwner, ListingDecision, BuyerStage, Verification, ContactForm, MoveContact, DraftCard, Weights, CallbackDone, AppDecision } from './AdminClient';
 
 export const metadata = { title: 'Admin', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
@@ -152,11 +152,9 @@ async function Config() {
   const version = await config<string>('active_score_version', 'score-v1.0');
   const row = await one(`SELECT weights FROM score_versions WHERE version = $1`, [version]);
   const versions = await q(`SELECT version, created_at, created_by FROM score_versions ORDER BY created_at DESC`);
-  const show = await config<boolean>('show_samples', true);
   return <div className="grid g-auto-420" style={{ gap: 20, alignItems: 'start' }}>
     <Weights initial={row!.weights} version={version} />
     <div className="col gap12">
-      <div className="card col gap10"><span style={{ fontWeight: 600 }}>Sample content</span><span className="small t2">Sample listings and professionals illustrate the marketplace before real profiles exist. They are labelled &ldquo;Sample&rdquo; and cannot receive requests.</span><SamplesToggle show={show} /></div>
       <div className="card col gap6"><span style={{ fontWeight: 600 }}>Score versions</span>{versions.map((v) => <span key={v.version} className="row between small rule-tl" style={{ paddingTop: 6 }}><span>{v.version}{v.version === version ? ' · active' : ''}</span><span className="muted">{fmtDate(v.created_at)} · {v.created_by}</span></span>)}</div>
       <div className="card col gap6"><span style={{ fontWeight: 600 }}>Integrations</span>{[['OTP by SMS (MSG91)', !!process.env.MSG91_AUTH_KEY], ['OTP by email (Resend)', !!process.env.RESEND_API_KEY], ['Payments (Razorpay)', !!process.env.RAZORPAY_KEY_ID], ['AI narrative (Anthropic)', !!process.env.ANTHROPIC_API_KEY], ['Dedicated session secret', !!process.env.SESSION_SECRET]].map(([k, on]) => <span key={k as string} className="row between small rule-tl" style={{ paddingTop: 6 }}><span>{k}</span><span style={{ color: on ? 'var(--green)' : 'var(--warn)' }}>{on ? 'Configured' : 'Not configured'}</span></span>)}</div>
     </div>

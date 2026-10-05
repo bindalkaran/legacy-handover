@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Wordmark from './Wordmark';
 import MobileMenu from './MobileMenu';
+import AccountLinks from './AccountLinks';
 
-const NAV = [['/guides/family-business-succession', 'Guides'], ['/professionals', 'Professionals'], ['/#pricing', 'Pricing'], ['/acquire', 'For acquirers'], ['/advisor', 'For advisors']];
+const NAV = [['/guides', 'Guides'], ['/professionals', 'Professionals'], ['/#pricing', 'Pricing'], ['/acquire', 'For acquirers'], ['/advisor', 'For advisors']];
 
 export default function SiteHeader({ active }: { active?: string }) {
   return (
@@ -15,10 +16,10 @@ export default function SiteHeader({ active }: { active?: string }) {
           {NAV.map(([h, t]) => <Link key={h} href={h} style={active === t ? { borderBottom: '1px solid var(--ink)' } : undefined}>{t}</Link>)}
         </nav>
         <div className="sh-right">
-          <Link href="/sign-in">Sign in</Link>
+          <AccountLinks />
           <Link href="/assessment" className="btn" style={{ padding: '10px 16px', minHeight: 0 }}>Start assessment</Link>
         </div>
-        <MobileMenu links={[['/#how', 'How it works'], ['/#stories', 'Owner stories'], ...NAV, ['/sign-in', 'Sign in']]} />
+        <MobileMenu links={[['/#how', 'How it works'], ['/#stories', 'Examples'], ...NAV]} />
       </div>
     </header>
   );

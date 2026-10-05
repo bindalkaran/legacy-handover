@@ -12,7 +12,7 @@ import { SignNda, GrantDiligence, StagePicker, PermButton, AskForm, AnswerForm, 
 export const metadata = { title: 'Deal workspace', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-const TABS = [['overview', 'Overview'], ['parties', 'Parties'], ['nda', 'NDA'], ['room', 'Data room'], ['qa', 'Questions & AI'], ['offers', 'Offers'], ['financing', 'Financing'], ['closing', 'Closing'], ['transition', 'Transition'], ['activity', 'Activity']];
+const TABS = [['overview', 'Overview'], ['parties', 'Parties'], ['nda', 'NDA'], ['room', 'Data room'], ['qa', 'Questions & assistant'], ['offers', 'Offers'], ['financing', 'Financing'], ['closing', 'Closing'], ['transition', 'Transition'], ['activity', 'Activity']];
 const cr = (n: number) => '₹' + Number(n).toFixed(2) + ' Cr';
 
 export default async function DealPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; cat?: string }> }) {

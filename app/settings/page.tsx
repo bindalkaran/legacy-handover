@@ -2,18 +2,18 @@ import Link from 'next/link';
 import { requireUser, fmtDate } from '@/lib/guard';
 import { q } from '@/lib/db';
 import Wordmark from '@/components/Wordmark';
-import { NotifMatrix, Region, ProfileForm, DeleteAccount } from './SettingsClient';
+import { ProfileForm, DeleteAccount } from './SettingsClient';
 
 export const metadata = { title: 'Settings', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-const TABS = [['notif', 'Notifications'], ['billing', 'Billing & invoices'], ['security', 'Security & data'], ['region', 'Language & region'], ['profile', 'Profile']];
+const TABS = [['profile', 'Profile'], ['billing', 'Billing & receipts'], ['security', 'Security & data']];
 const rs = (p: number) => '₹' + (p / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
 export default async function Settings({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const u = await requireUser('/settings');
   const t = (await searchParams).tab;
-  const tab = TABS.some((x) => x[0] === t) ? t! : 'notif';
+  const tab = TABS.some((x) => x[0] === t) ? t! : 'profile';
   const home = u.role === 'buyer' ? '/acquirer' : u.role === 'advisor' ? '/advisor' : '/dashboard';
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -25,10 +25,8 @@ export default async function Settings({ searchParams }: { searchParams: Promise
           <form action="/api/sign-out" method="post"><button style={{ fontSize: 14.5, padding: '10px 12px', border: 0, background: 'none', color: 'var(--muted)' }}>Sign out</button></form>
         </nav>
         <div className="col gap20" style={{ flex: '999 1 min(100%,520px)', minWidth: 0 }}>
-          {tab === 'notif' && <NotifMatrix prefs={u.notif_prefs || {}} />}
           {tab === 'billing' && <Billing userId={u.id} />}
           {tab === 'security' && <Security userId={u.id} />}
-          {tab === 'region' && <Region language={u.language} country={u.country} />}
           {tab === 'profile' && <ProfileForm u={u} />}
         </div>
       </main>
@@ -45,11 +43,11 @@ async function Billing({ userId }: { userId: string }) {
       <Link href="/#pricing" className="btn btn-ghost">See plans</Link>
     </div>
     <div className="table">
-      <div className="trow head" style={{ gridTemplateColumns: '120px minmax(180px,1fr) 100px 90px 110px', minWidth: 640 }}><span>Invoice</span><span>Item</span><span>Amount</span><span>GST incl.</span><span>Status</span></div>
-      {pays.length === 0 && <div className="trow muted" style={{ minWidth: 640 }}>No invoices yet.</div>}
-      {pays.map((p) => <div key={p.id} className="trow" style={{ gridTemplateColumns: '120px minmax(180px,1fr) 100px 90px 110px', minWidth: 640 }}><span className="small muted">{p.invoice_no}</span><span>{p.item}<span className="xs muted" style={{ display: 'block' }}>{fmtDate(p.created_at)}{p.provider === 'test' ? ' · test mode, no charge' : ''}</span></span><span>{rs(p.amount_paise)}</span><span className="muted">{rs(p.gst_paise)}</span><span className="small col gap4" style={{ color: p.status === 'paid' ? 'var(--green)' : 'var(--gold)' }}>{p.status === 'paid' ? 'Paid' : p.status === 'refunded' ? 'Refunded' : p.status === 'created' ? 'Pending' : 'Failed'}<Link href={`/invoice/${p.id}`} className="link-u xs" style={{ color: 'var(--ink)' }}>View / PDF</Link></span></div>)}
+      <div className="trow head" style={{ gridTemplateColumns: '120px minmax(180px,1fr) 100px 110px', minWidth: 640 }}><span>Receipt</span><span>Item</span><span>Amount</span><span>Status</span></div>
+      {pays.length === 0 && <div className="trow muted" style={{ minWidth: 640 }}>No payments yet.</div>}
+      {pays.map((p) => <div key={p.id} className="trow" style={{ gridTemplateColumns: '120px minmax(180px,1fr) 100px 110px', minWidth: 640 }}><span className="small muted">{p.invoice_no}</span><span>{p.item}<span className="xs muted" style={{ display: 'block' }}>{fmtDate(p.created_at)}{p.provider === 'test' ? ' · test mode, no charge' : ''}</span></span><span>{rs(p.amount_paise)}</span><span className="small col gap4" style={{ color: p.status === 'paid' ? 'var(--green)' : 'var(--gold)' }}>{p.status === 'paid' ? 'Paid' : p.status === 'refunded' ? 'Refunded' : p.status === 'created' ? 'Pending' : 'Failed'}<Link href={`/invoice/${p.id}`} className="link-u xs" style={{ color: 'var(--ink)' }}>View / PDF</Link></span></div>)}
     </div>
-    <span className="xs muted">Payments via Razorpay. Refund requests within 7 days of a one-time purchase.</span>
+    <span className="xs muted">Payments are processed by Razorpay. Bindal Infotech is not registered under GST, so no GST is charged. See the refund policy for the 7-day refund window.</span>
   </>;
 }
 

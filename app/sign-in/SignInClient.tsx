@@ -17,7 +17,7 @@ export default function SignInClient({ initialRole, next, roleChosen }: { initia
         <p className="t2" style={{ margin: 0, fontSize: 15 }}>{R[role][3]}</p>
       </div>
       <OtpForm key={role} role={R[role][0]} next={next} explicit={picked} />
-      <span className="xs muted" style={{ lineHeight: 1.55 }}>By continuing you agree to our <a href="/terms" className="link-u">Terms</a> and <a href="/privacy" className="link-u">Privacy Policy</a>. We never contact your staff, customers or family.</span>
+      <span className="xs muted" style={{ lineHeight: 1.55 }}>We never contact your staff, customers or family.</span>
     </div>
   );
 }

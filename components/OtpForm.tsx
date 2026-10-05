@@ -69,6 +69,7 @@ export default function OtpForm({ role, next, submitLabel = 'Verify & continue',
         <button className="btn btn-ghost" onClick={() => { setMode(mode === 'phone' ? 'email' : 'phone'); setIdent(''); setErr(''); }}>{mode === 'phone' ? 'Continue with email' : 'Use mobile number instead'}</button>
       </>}
       {err && <span className="err">{err}</span>}
+      <span className="xs muted" style={{ lineHeight: 1.55 }}>By continuing you agree to our <a href="/terms" target="_blank" className="link-u">Terms of use</a> and <a href="/privacy" target="_blank" className="link-u">Privacy policy</a>.</span>
     </div>
   );
   return (

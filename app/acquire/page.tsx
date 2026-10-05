@@ -2,7 +2,7 @@ import { q, config } from '@/lib/db';
 import { currentUser } from '@/lib/auth';
 import AcquireClient from './AcquireClient';
 
-export const metadata = { title: 'Acquire an established business', description: 'Established, profitable Indian businesses whose owners are planning their next chapter. Every profile is reviewed; details unlock as you are verified and the owner approves.' };
+export const metadata = { title: 'Acquire an established Indian business', description: 'Confidential profiles of established Indian businesses whose owners are planning succession. Profiles are reviewed, owners approve every request, and details unlock under NDA.', alternates: { canonical: '/acquire' } };
 export const dynamic = 'force-dynamic';
 
 export default async function Acquire() {

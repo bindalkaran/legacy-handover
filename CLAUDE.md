@@ -26,13 +26,17 @@ DATABASE_URL=pglite:./.pglite npx next build
 - `lib/owner.ts` draft/finish assessment, business context. `lib/deals.ts` deal access, health, deterministic assistant. `lib/matching.ts` buyer/listing scoring. `lib/payments.ts` Razorpay or labelled test mode. `lib/passport.ts`.
 - `app/actions/*` server actions (auth, assessment, owner, buyer, deal, advisor, admin, settings, passport, billing, pros, public). Every action re-checks the current user and ownership server-side.
 - Pages: `/`, `/guides/[slug]`, `/assessment`, `/report`, `/report/sample`, `/dashboard?view=`, `/acquire`, `/acquirer?view=`, `/advisor`, `/deals/[id]?tab=`, `/passport`, `/passport/s/[token]`, `/settings?tab=`, `/admin?tab=`, `/sign-in`, `/professionals`, `/privacy`, `/terms`.
-- API routes: `/api/documents/[id]` (permission-checked view/download, logged), `/api/export`, `/api/invite`, `/api/sign-out`.
+- API routes: `/api/documents/[id]` (permission-checked view/download, logged), `/api/export`, `/api/invite`, `/api/sign-out`, `/api/me` (lets static pages show signed-in state), `/api/razorpay/webhook`.
+- Public/legal pages: `/about`, `/contact`, `/faq`, `/guides`, `/privacy`, `/terms`, `/refund-policy`, `/delivery-policy`. SEO: `lib/seo.tsx` (JSON-LD), `app/sitemap.ts`, `app/robots.ts`, `/llms.txt`, `/llms-full.txt`. Fonts are self-hosted in `public/fonts`.
+- Operator email alerts: `lib/notify.ts` (callback, professional application, profile submitted, payment). Off until `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` are set; `ALERT_TO` defaults to hello@legacyhandover.com.
 
 ## Rules to keep
 - Confidentiality levels L0–L4; default L0. Buyers see documents only up to `deals.buyer_max_level` (2 → 3 after both NDA signatures → 4 when owner grants).
 - Every sensitive action writes `audit_logs` via `audit()`. Analytics via `track()`.
 - Facts supplied vs interpretation stay separated in the report. Valuation disclaimer text is fixed (`VALUE_DISCLAIMER`).
-- Sample listings/professionals have `is_sample = true`, are labelled "Sample", and cannot receive requests.
+- No invented content: no sample listings/professionals, fake ratings, testimonials or statistics. The home "How it plays out" items are labelled example scenarios. Photos are AI-generated and the footer says they are illustrative.
+- Operator facts (Bindal Infotech, proprietorship of Karan Bindal, not GST-registered, address, phone, email, Grievance Officer) live only in `lib/company.ts`. Legal pages, receipts, footer and JSON-LD read from it.
+- FAQ answers (`lib/faq.ts`) are checked against the scoring code; update them when `compute()` or pricing changes.
 - Writing style for any copy: no em dashes, plain human prose.
 
 ## Environment
@@ -44,10 +48,7 @@ Planned providers: Firebase Phone Auth for sign-in (`NEXT_PUBLIC_FIREBASE_*`; cl
 `users.role` is the active workspace; `users.roles` holds every role the account has. Check access with `hasRole(user, ...)`. The sign-in tab only changes the active role when the person picked it (or arrived with `?role=`).
 
 ## Open items
-1. When the custom domain is live, add it to Firebase > Authentication > Settings > Authorised domains.
-2. Add Razorpay keys + webhook, then remove `PAYMENTS_TEST_MODE`.
-3. Photos are AI-generated (Pletor) and labelled illustrative; replace with real photography and consented stories when available. Founder note still placeholder copy.
-4. Legal review of `/privacy` and `/terms`.
-5. Documents are base64 in Postgres (4 MB cap); move to object storage when data rooms grow.
-6. Regional-language UI strings (preference is stored, translations not done).
-7. WhatsApp/email notification delivery (preferences stored, not sent).
+1. hello@legacyhandover.com: Zoho Mail upgrade (owner), then add domain + MX/SPF/DKIM at Spaceship and the alias; then set SMTP_* on Vercel for operator alerts.
+2. Add Razorpay keys + webhook (`https://legacyhandover.com/api/razorpay/webhook`), then remove `PAYMENTS_TEST_MODE`.
+3. Customer notifications (email/WhatsApp) are not built; the UI only promises dashboard updates.
+4. Documents are base64 in Postgres (4 MB cap); move to object storage when data rooms grow.

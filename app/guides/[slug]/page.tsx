@@ -3,14 +3,17 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import SiteHeader from '@/components/SiteHeader';
 import Photo from '@/components/Photo';
-import { GUIDES } from '@/lib/guides';
+import SiteFooter from '@/components/SiteFooter';
+import { GUIDES, GUIDE_AUTHOR, GUIDE_PUBLISHED } from '@/lib/guides';
+import { COMPANY } from '@/lib/company';
+import { breadcrumbJsonLd, faqJsonLd, JsonLd } from '@/lib/seo';
 
 export function generateStaticParams() { return GUIDES.map((g) => ({ slug: g.slug })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const g = GUIDES.find((x) => x.slug === slug);
-  return g ? { title: g.title, description: g.intro, alternates: { canonical: '/guides/' + g.slug } } : {};
+  return g ? { title: g.title, description: g.intro, alternates: { canonical: '/guides/' + g.slug }, authors: [{ name: GUIDE_AUTHOR }], openGraph: { type: 'article', title: g.title, description: g.intro, images: [{ url: g.img }], publishedTime: GUIDE_PUBLISHED, authors: [GUIDE_AUTHOR] } } : {};
 }
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -19,6 +22,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   if (!g) notFound();
   return (
     <div style={{ minHeight: '100vh' }}>
+      <JsonLd data={{ '@context': 'https://schema.org', '@type': 'Article', headline: g.title, description: g.intro, image: COMPANY.site + g.img, datePublished: GUIDE_PUBLISHED, dateModified: GUIDE_PUBLISHED, inLanguage: 'en-IN', author: { '@type': 'Person', name: GUIDE_AUTHOR }, publisher: { '@id': COMPANY.site + '/#organization' }, mainEntityOfPage: COMPANY.site + '/guides/' + g.slug }} />
+      <JsonLd data={breadcrumbJsonLd([['Home', '/'], ['Guides', '/guides'], [g.title, '/guides/' + g.slug]])} />
+      <JsonLd data={faqJsonLd(g.faqs.map(([q, a]) => ({ q, a })))} />
       <SiteHeader active="Guides" />
       <main className="wrap col" style={{ paddingTop: 48, paddingBottom: 96, gap: 56 }}>
         <nav className="row" style={{ gap: 0, border: '1px solid var(--ink)' }}>
@@ -31,6 +37,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <span className="eyebrow">Guide · {g.read}</span>
             <h1 className="h1" style={{ fontSize: 'clamp(38px,4.8vw,64px)' }}>{g.title}</h1>
             <p className="t2" style={{ margin: 0, fontSize: 18, lineHeight: 1.6, maxWidth: 560 }}>{g.intro}</p>
+            <span className="small muted">By {GUIDE_AUTHOR}, founder of {COMPANY.brand} · 5 October 2026</span>
           </div>
           <Photo src={g.img} priority caption={g.ph} style={{ minHeight: 380 }} />
         </section>
@@ -40,6 +47,15 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               <div className="row" style={{ gap: 20, alignItems: 'baseline', flexWrap: 'nowrap' }}><span className="serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--gold)', lineHeight: 1 }}>{i + 1}</span><h2 className="serif" style={{ fontWeight: 400, fontSize: 26, lineHeight: 1.2, margin: 0 }}>{h}</h2></div>
               <p className="t2" style={{ margin: 0, fontSize: 16, lineHeight: 1.65, gridColumn: 'span 2', maxWidth: 720 }}>{p}</p>
             </article>
+          ))}
+        </section>
+        <section className="col gap8">
+          <h2 className="serif" style={{ fontWeight: 400, fontSize: 28, margin: '0 0 8px' }}>Common questions</h2>
+          {g.faqs.map(([q, a]) => (
+            <div key={q} className="col gap6 rule-t" style={{ padding: '18px 0' }}>
+              <h3 style={{ margin: 0, fontSize: 17.5, fontWeight: 500 }}>{q}</h3>
+              <p className="t2" style={{ margin: 0, fontSize: 16, lineHeight: 1.65 }}>{a}</p>
+            </div>
           ))}
         </section>
         <section className="panel-green grid g-auto-380" style={{ padding: 40, gap: 32, alignItems: 'center' }}>
@@ -55,9 +71,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
       </main>
-      <footer style={{ background: 'var(--dark)', color: '#B8B2A5', fontSize: 13 }}>
-        <div className="wrap row between" style={{ padding: '28px 32px' }}><span><span className="serif" style={{ fontSize: 17, color: 'var(--paper)' }}>Legacy Handover</span> · Plan the handover. Protect the legacy.</span><span>Guides are general education, not legal, tax or investment advice.</span></div>
-      </footer>
+      <div className="wrap small muted" style={{ paddingBottom: 32 }}>Guides are general education, not legal, tax or investment advice. Speak to a qualified professional about your situation.</div>
+      <SiteFooter />
     </div>
   );
 }

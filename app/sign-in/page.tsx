@@ -1,7 +1,7 @@
 import Wordmark from '@/components/Wordmark';
 import SignInClient from './SignInClient';
 
-export const metadata = { title: 'Sign in' };
+export const metadata = { title: 'Sign in', robots: { index: false, follow: true } };
 
 export default async function SignIn({ searchParams }: { searchParams: Promise<{ role?: string; next?: string }> }) {
   const sp = await searchParams;

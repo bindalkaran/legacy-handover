@@ -40,7 +40,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
     setErr('');
     if (l.is_sample) { setMsg('This is a sample listing that shows how opportunities appear. Requests open on live, owner-approved profiles. Create a profile to be matched as they are published.'); setReg({ step: 9 }); return; }
     const r = await requestAccess(l.id);
-    if (r.ok) { setDone([...done, l.id]); setMsg(`Your access request for “${r.title}” has been sent. The owner is notified and decides whether to share more.`); setReg({ step: 9 }); return; }
+    if (r.ok) { setDone([...done, l.id]); setMsg(`Your access request for “${r.title}” has been sent. It appears in the owner’s dashboard, and they decide whether to share more.`); setReg({ step: 9 }); return; }
     if ('needAuth' in r && r.needAuth) return setReg({ step: 0, target: l });
     if ('needProfile' in r && r.needProfile) return setReg({ step: 0, target: l });
     setErr(r.error || ''); setMsg(r.error || ''); setReg({ step: 9 });
@@ -60,7 +60,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
     if (reg?.afterSave) { await saveSearch(label, { industry: ind, intl }); setSavedSet([...savedSet, label]); }
     if (reg?.target) {
       const rr = await requestAccess(reg.target.id);
-      if (rr.ok) { setDone([...done, reg.target.id]); setMsg(`Your access request for “${rr.title}” has been sent. The owner is notified and decides whether to share more.`); }
+      if (rr.ok) { setDone([...done, reg.target.id]); setMsg(`Your access request for “${rr.title}” has been sent. It appears in the owner’s dashboard, and they decide whether to share more.`); }
       else setMsg(('error' in rr && rr.error) || 'Profile created.');
     } else setMsg('We’ll match you with opportunities that fit. Complete verification to request access to details.');
     setReg({ step: 9 });
@@ -74,7 +74,7 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
       <header style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--paper)', borderBottom: '1px solid var(--ink)' }}>
         <div className="wrap row between" style={{ padding: '16px 32px', gap: 24 }}>
           <Link href="/" className="serif" style={{ fontSize: 23 }}>Legacy <em style={{ color: 'var(--green)' }}>Handover</em></Link>
-          <nav className="row" style={{ gap: 24, fontSize: 13.5 }}><Link href="/">For owners</Link><Link href="/acquire" className="link-u">For acquirers</Link><Link href="/sign-in?role=buyer">Sign in</Link></nav>
+          <nav className="row" style={{ gap: 24, fontSize: 13.5 }}><Link href="/">For owners</Link><Link href="/acquire" className="link-u">For acquirers</Link>{signedIn ? <form action="/api/sign-out" method="post" style={{ display: 'inline' }}><button className="linkbtn" style={{ fontSize: 13.5 }}>Sign out</button></form> : <Link href="/sign-in?role=buyer">Sign in</Link>}</nav>
           {profile ? <Link href="/acquirer" className="btn btn-green btn-sm">My acquirer dashboard</Link> : <button className="btn btn-green btn-sm" onClick={() => setReg({ step: 0 })}>Create acquirer profile</button>}
         </div>
       </header>
@@ -92,9 +92,15 @@ export default function AcquireClient({ listings, signedIn, hasProfile, requeste
           {inds.map((c) => <button key={c} onClick={() => setInd(c)} style={{ fontSize: 13.5, padding: '9px 15px', border: 0, background: ind === c ? 'var(--ink)' : 'var(--paper)', color: ind === c ? 'var(--paper)' : 'var(--t2)' }}>{c}</button>)}
           <button onClick={() => setIntl(!intl)} style={{ fontSize: 13.5, padding: '9px 15px', border: '1px solid var(--ink)', background: intl ? 'var(--ink)' : 'transparent', color: intl ? 'var(--paper)' : 'var(--ink)' }}>Open to international buyers</button>
           <span className="t2" style={{ marginLeft: 'auto', fontSize: 13, paddingRight: 8 }}>{list.length} reviewed opportunities · identities protected</span>
-          <button className="btn btn-sm" onClick={doSave} disabled={p || saved}>{saved ? 'Saved ✓ alerts on' : 'Save search & get alerts'}</button>
+          <button className="btn btn-sm" onClick={doSave} disabled={p || saved}>{saved ? 'Search saved ✓' : 'Save this search'}</button>
         </div>
-        {list.length === 0 && <div className="card muted">No published opportunities match these filters yet. Save the search and we&rsquo;ll alert you.</div>}
+        {listings.length === 0 && (
+          <div className="card col gap10" style={{ maxWidth: 760 }}>
+            <span className="serif" style={{ fontSize: 24 }}>No businesses are open to acquirers yet.</span>
+            <span className="t2" style={{ fontSize: 15.5, lineHeight: 1.6 }}>A profile appears here only after an owner chooses to share an anonymous summary and our team reviews it. Create your acquirer profile now and new opportunities that match it will show in your acquirer dashboard.</span>
+          </div>
+        )}
+        {listings.length > 0 && list.length === 0 && <div className="card muted">No published opportunities match these filters yet. Save the search to see new matches in your acquirer dashboard.</div>}
         <div className="grid g-auto-340" style={{ gap: 14 }}>
           {list.map((l) => {
             const req = done.includes(l.id);

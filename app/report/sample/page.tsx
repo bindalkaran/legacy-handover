@@ -1,7 +1,7 @@
 import ReportView from '@/components/ReportView';
 import type { StoredScore } from '@/lib/report';
 
-export const metadata = { title: 'Sample succession report' };
+export const metadata = { title: 'Sample succession report', description: 'See a full sample Legacy Handover report for an illustrative distribution business: three scores with their components, ten succession paths, an indicative value range and a readiness plan.', alternates: { canonical: '/report/sample' } };
 
 const SAMPLE: StoredScore = {
   transferability: 74, readiness: 62, independence: 48, dependency: 68,

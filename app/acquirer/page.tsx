@@ -5,12 +5,12 @@ import { matchScore } from '@/lib/matching';
 import { BUYER_STAGES } from '@/lib/constants';
 import { nextStep } from '@/lib/deals';
 import Shell from '@/components/Shell';
-import { RequestButton, FrequencyPicker } from '@/components/BuyerClient';
+import { RequestButton } from '@/components/BuyerClient';
 
 export const metadata = { title: 'Acquirer dashboard', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-const T: Record<string, string> = { home: 'Your acquisition dashboard', matches: 'Your matches', requests: 'Access requests', deals: 'Active deals', searches: 'Saved searches & alerts' };
+const T: Record<string, string> = { home: 'Your acquisition dashboard', matches: 'Your matches', requests: 'Access requests', deals: 'Active deals', searches: 'Saved searches' };
 
 function dealStageIdx(stage: number, ndaDone: boolean) {
   // map 13-stage deal lifecycle onto the 6 buyer stages
@@ -67,7 +67,7 @@ export default async function Acquirer({ searchParams }: { searchParams: Promise
       {showMatches && (
         <div className="col gap12">
           <span className="eyebrow">Matches · why they fit</span>
-          {matches.length === 0 && <div className="card small muted">No matches yet. Broaden your industries or capital in your profile, or save a search for alerts.</div>}
+          {matches.length === 0 && <div className="card small muted">No matches yet. Broaden your industries or capital in your profile; new profiles that fit appear here after our review.</div>}
           {(v === 'home' ? matches.slice(0, 4) : matches).map((m) => (
             <div key={m.l.id} className="card grid" style={{ gridTemplateColumns: 'auto minmax(0,1fr) auto', gap: 22, alignItems: 'center', padding: '20px 22px' }}>
               <span className="big" style={{ fontSize: 40, color: 'var(--green)', minWidth: 56 }}>{m.score}</span>
@@ -117,14 +117,13 @@ export default async function Acquirer({ searchParams }: { searchParams: Promise
       )}
       {v === 'searches' && (
         <div className="col gap10">
-          {searches.length === 0 && <div className="card small muted">No saved searches. Use &ldquo;Save search &amp; get alerts&rdquo; on the explore page.</div>}
+          {searches.length === 0 && <div className="card small muted">No saved searches. Use &ldquo;Save this search&rdquo; on the explore page.</div>}
           {searches.map((s) => (
             <div key={s.id} className="card row between" style={{ gap: 14 }}>
               <div className="col gap4"><span className="serif" style={{ fontSize: 20 }}>{s.label}</span><span className="small muted">{listings.filter((l) => (s.filters.industry === 'All' || l.industry === s.filters.industry) && (!s.filters.intl || l.open_international)).length} matching now</span></div>
-              <FrequencyPicker id={s.id} value={s.frequency} />
             </div>
           ))}
-          <span className="xs muted">Opportunity alerts are recorded against your preferences; delivery by email or WhatsApp activates once messaging is configured. Manage channels in Settings.</span>
+          <span className="xs muted">Each saved search shows how many current profiles match it. Check back here, or on the explore page, for new opportunities.</span>
         </div>
       )}
     </Shell>

@@ -20,11 +20,18 @@ export default function ProsClient({ pros, signedIn, invited }: { pros: any[]; s
         <h1 className="h1">Professionals who do succession work.</h1>
         <p className="t2" style={{ margin: 0, fontSize: 16 }}>CAs, lawyers, valuers and lenders for SME transitions. Invite one into your account or deal; they only see what you share.</p>
       </div>
+      {pros.length === 0 && (
+        <div className="card col gap10" style={{ maxWidth: 720 }}>
+          <span className="serif" style={{ fontSize: 24 }}>The directory opens with verified professionals.</span>
+          <span className="t2" style={{ fontSize: 15.5, lineHeight: 1.6 }}>We list CAs, lawyers, valuers and lenders only after checking their registration and practice, so the directory is empty at launch. You can already invite your own CA or lawyer from your dashboard. If you advise owner-led businesses, apply below.</span>
+        </div>
+      )}
+      {pros.length > 0 && <>
       <div className="row gap8" style={{ padding: 12, background: 'var(--tint)' }}>
         {types.map((t) => <button key={t} onClick={() => setType(t)} style={{ fontSize: 13.5, padding: '9px 14px', border: 0, background: type === t ? 'var(--ink)' : 'var(--paper)', color: type === t ? 'var(--paper)' : 'var(--ink)' }}>{t}</button>)}
         <select value={city} onChange={(e) => setCity(e.target.value)} className="select" style={{ width: 'auto', marginLeft: 'auto', padding: '9px 12px', fontSize: 13.5 }}>{cities.map((c) => <option key={c}>{c}</option>)}</select>
       </div>
-      <span className="small muted">{list.length} professionals{pros.some((p) => p.is_sample) ? ' · profiles marked Sample illustrate the directory and are not yet verified firms' : ''}</span>
+      <span className="small muted">{list.length} professionals · listed after verification by our team</span>
       <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,320px),1fr))', gap: 14 }}>
         {list.map((p) => (
           <div key={p.id} className="card col gap14">
@@ -34,8 +41,8 @@ export default function ProsClient({ pros, signedIn, invited }: { pros: any[]; s
             </div>
             <div className="row gap6" style={{ fontSize: 12 }}><span className="pill p-ink">{p.pro_type}</span><span style={{ border: '1px solid var(--rule-l)', padding: '4px 9px' }}>{p.city}</span><span style={{ border: '1px solid var(--rule-l)', padding: '4px 9px' }}>{p.languages}</span>{p.is_sample && <span className="sample-tag">Sample</span>}</div>
             <span className="t2" style={{ fontSize: 14 }}>{p.expertise}</span>
-            <div className="grid rule-tl" style={{ gridTemplateColumns: 'repeat(3,1fr)', gap: 8, paddingTop: 12, fontSize: 12.5 }}>
-              {[['Transitions', p.transitions], ['Rating', p.rating ? p.rating + ' ★' : '—'], ['Fees from', p.fees_from]].map(([k, v]) => <div key={k} className="col gap4"><span className="muted">{k}</span><span style={{ fontSize: 15 }}>{v}</span></div>)}
+            <div className="grid rule-tl" style={{ gridTemplateColumns: 'repeat(2,1fr)', gap: 8, paddingTop: 12, fontSize: 12.5 }}>
+              {[['Languages', p.languages || '—'], ['Fees from', p.fees_from || 'On request']].map(([k, v]) => <div key={k} className="col gap4"><span className="muted">{k}</span><span style={{ fontSize: 15 }}>{v}</span></div>)}
             </div>
             <button className={'btn ' + (inv[p.id] ? 'btn-green' : 'btn-ghost')} disabled={!!inv[p.id]} onClick={() => {
               if (!signedIn) { window.location.href = '/sign-in?role=owner&next=/professionals'; return; }
@@ -49,6 +56,7 @@ export default function ProsClient({ pros, signedIn, invited }: { pros: any[]; s
           </div>
         ))}
       </div>
+      </>}
       <div id="join" className="panel-green grid g-auto-380" style={{ padding: 32, gap: 24, alignItems: 'center' }}>
         <div className="col gap6"><span className="serif" style={{ fontSize: 26 }}>Are you a CA, lawyer or valuer?</span><span style={{ fontSize: 14.5, color: 'var(--on-green)' }}>Join the network to manage client succession readiness and receive referrals. We verify every firm before listing.</span></div>
         {state?.ok ? <span style={{ fontSize: 15 }}>Application received ✓ We&rsquo;ll be in touch to verify your firm.</span> : (

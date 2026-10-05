@@ -9,7 +9,7 @@ import { TaskList, type TaskRow } from '@/components/owner/OwnerClient';
 import { InviteClient, NoteBox, TakeTask, AdvisorProfile } from '@/components/AdvisorClient';
 import { scopeOf, sharedText, ClientDocs } from './shared';
 
-export const metadata = { title: 'Advisor portal', description: 'Help your clients plan beyond the present. A private portal for CAs, lawyers and advisors to track client succession readiness.' };
+export const metadata = { title: 'Advisor portal', description: 'Help your clients plan beyond the present. A private portal for CAs, lawyers and advisors to track client succession readiness.', alternates: { canonical: '/advisor' } };
 export const dynamic = 'force-dynamic';
 
 /** An advisor counts as verified once admin has listed them in the professional directory under the same mobile or email. */

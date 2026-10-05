@@ -97,7 +97,7 @@ export function OfferActions({ dealId, offerId, clarifying }: { dealId: string; 
         <button className="btn btn-green btn-sm" disabled={p} onClick={() => run(() => respondOffer(dealId, offerId, 'Accepted'), after)}>Accept</button>
         <a href="#offer-form" className="btn btn-ghost btn-sm">Counter</a>
         {!clarifying && <button className="btn btn-ghost btn-sm" disabled={p} onClick={() => run(() => respondOffer(dealId, offerId, 'Clarification requested'), after)}>Request clarification</button>}
-        <ConfirmButton className="btn btn-sm" style={{ background: 'transparent', border: 0, color: 'var(--warn)' }} disabled={p} danger message="Reject this offer? The other side is notified and it is logged in the deal activity." confirmLabel="Reject offer" onConfirm={() => run(() => respondOffer(dealId, offerId, 'Rejected'), after)}>Reject</ConfirmButton>
+        <ConfirmButton className="btn btn-sm" style={{ background: 'transparent', border: 0, color: 'var(--warn)' }} disabled={p} danger message="Reject this offer? It is logged in the deal activity, which the other side sees." confirmLabel="Reject offer" onConfirm={() => run(() => respondOffer(dealId, offerId, 'Rejected'), after)}>Reject</ConfirmButton>
       </div>
       {clarifying && <span className="xs muted">Waiting for the other party to reply to your clarification request.</span>}
       {err && <span className="err">{err}</span>}
