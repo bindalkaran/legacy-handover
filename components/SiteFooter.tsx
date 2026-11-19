@@ -22,7 +22,7 @@ export default function SiteFooter() {
         {col('Legal', [['/terms', 'Terms of use'], ['/privacy', 'Privacy policy'], ['/refund-policy', 'Refund & cancellation'], ['/delivery-policy', 'Delivery policy']])}
       </div>
       <div className="wrap col gap6" style={{ padding: '20px 32px 40px', borderTop: '1px solid #2E2C28', fontSize: 12.5, color: '#8A8478', lineHeight: 1.6 }}>
-        <span>© {new Date().getFullYear()} {COMPANY.legalName}. {COMPANY.brand} is operated by {COMPANY.legalName} ({COMPANY.entity}), {ADDRESS_LINE}.</span>
+        <span>© {new Date().getFullYear()} {COMPANY.legalName}. {COMPANY.brand} is operated by <a href="https://bindalinfotech.com" target="_blank" rel="noopener" style={{ color: '#B8B2A5' }}>{COMPANY.legalName}</a> ({COMPANY.entity}), {ADDRESS_LINE}.</span>
         <span><a href={`mailto:${COMPANY.email}`} style={{ color: '#B8B2A5' }}>{COMPANY.email}</a> · <a href={COMPANY.phoneHref} style={{ color: '#B8B2A5' }}>{COMPANY.phone}</a> · Grievance Officer: {COMPANY.grievanceOfficer}</span>
         <span>Photographs on this site are illustrative and do not show real clients.</span>
       </div>
